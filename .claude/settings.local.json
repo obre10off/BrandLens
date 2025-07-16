@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gemini:*)",
+      "Bash(ls:*)",
+      "Bash(bun install:*)",
+      "Bash(bun add:*)",
+      "WebFetch(domain:promptwatch.com)",
+      "Bash(mkdir:*)",
+      "Bash(bunx shadcn-ui@latest add:*)",
+      "Bash(bunx shadcn@latest add:*)",
+      "Bash(bun:*)",
+      "Bash(openssl rand:*)",
+      "Bash(pkill:*)",
+      "Bash(grep:*)",
+      "Bash(source:*)",
+      "Bash(true)",
+      "Bash(rm:*)",
+      "Bash(echo:*)",
+      "Bash(node:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": false
+}

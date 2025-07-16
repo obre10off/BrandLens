@@ -1,8 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F3F4EE;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --secondary: #f3f4f6;
+  --secondary-foreground: #000000;
+  --muted: #f9fafb;
+  --muted-foreground: #000000;
+  --accent: #f3f4f6;
+  --accent-foreground: #000000;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #2563eb;
+  --radius: 0.5rem;
 }
 
 @theme inline {
@@ -14,13 +30,188 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #1a1a1a;
+    --foreground: #f5f5f5;
+    --card: #262626;
+    --card-foreground: #f5f5f5;
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+    --secondary: #333333;
+    --secondary-foreground: #f5f5f5;
+    --muted: #333333;
+    --muted-foreground: #a3a3a3;
+    --accent: #333333;
+    --accent-foreground: #f5f5f5;
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+    --border: #404040;
+    --input: #333333;
+    --ring: #3b82f6;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
+html, body {
+  background: #F3F4EE;
+  color: #000000;
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Button hover effects */
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Link hover effects */
+a {
+  transition: opacity 0.2s ease-in-out;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* Ensure background color is applied everywhere */
+* {
+  background-color: transparent;
+}
+
+/* Card styles */
+.card {
+  background: white;
+  border: 1px solid #e5e7eb;
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.2s ease-in-out;
+  background: white;
+  border: 1px solid #e5e7eb;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Ensure text readability */
+h1, h2, h3, h4, h5, h6 {
+  color: #000000;
+  font-weight: 600;
+}
+
+p {
+  color: #000000;
+}
+
+label {
+  color: #000000;
+}
+
+span {
+  color: #000000;
+}
+
+.text-muted-foreground {
+  color: #000000 !important;
+}
+
+/* Override any color inheritance */
+* {
+  color: inherit;
+}
+
+/* Smooth page animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation classes */
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.8s ease-out;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.6s ease-out;
+}
+
+/* Animation delays */
+.animation-delay-100 {
+  animation-delay: 0.1s;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-300 {
+  animation-delay: 0.3s;
+}
+
+.animation-delay-400 {
+  animation-delay: 0.4s;
+}
+
+.animation-delay-500 {
+  animation-delay: 0.5s;
+}
+
+.animation-delay-600 {
+  animation-delay: 0.6s;
+}
+
+/* Ensure delayed animations start hidden */
+.animation-delay-100,
+.animation-delay-200,
+.animation-delay-300,
+.animation-delay-400,
+.animation-delay-500,
+.animation-delay-600 {
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
 }
