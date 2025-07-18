@@ -40,14 +40,19 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+imges
 
 ai_docs
 
-specs
 
-.claude 
+scripts 
 
-CLAUDE.md
+
+
+
+
+
+CODEBASE_ANALYSIS.md
 
 scripts 
 
