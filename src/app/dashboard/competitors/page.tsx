@@ -87,7 +87,7 @@ export default async function CompetitorsPage() {
           <CardHeader>
             <CardTitle className="text-black">Competitor Limit Reached</CardTitle>
             <CardDescription className="text-black">
-              You've reached the maximum of {competitorLimit} competitors for your current plan.
+              You&apos;ve reached the maximum of {competitorLimit} competitors for your current plan.
               Upgrade to track more competitors.
             </CardDescription>
           </CardHeader>

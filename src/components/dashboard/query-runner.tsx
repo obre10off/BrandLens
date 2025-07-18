@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Play, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { queryTemplates } from '@/lib/llm/query-templates';
+import { QueryErrorBoundary } from '@/components/error-boundary';
 
 interface QueryRunnerProps {
   projectId: string;
@@ -87,7 +88,8 @@ export function QueryRunner({ projectId, onQueryComplete }: QueryRunnerProps) {
   }, {} as Record<string, typeof queryTemplates>);
 
   return (
-    <Card>
+    <QueryErrorBoundary>
+      <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="h-5 w-5" />
@@ -102,7 +104,7 @@ export function QueryRunner({ projectId, onQueryComplete }: QueryRunnerProps) {
           {/* Provider Selection */}
           <div className="space-y-2">
             <label className="text-sm font-medium">AI Provider</label>
-            <Select value={provider} onValueChange={(v) => setProvider(v as any)}>
+            <Select value={provider} onValueChange={(v) => setProvider(v as typeof provider)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -211,5 +213,6 @@ export function QueryRunner({ projectId, onQueryComplete }: QueryRunnerProps) {
         </div>
       </CardContent>
     </Card>
+    </QueryErrorBoundary>
   );
 }

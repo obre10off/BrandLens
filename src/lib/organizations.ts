@@ -1,6 +1,7 @@
 import { db } from './db';
 import { organizations, organizationMembers, subscriptions, trials, projects, users } from './db/schema';
 import { eq, and, or, inArray, sql } from 'drizzle-orm';
+import { logger } from './logger';
 
 export async function createDefaultOrganization(userId: string, userEmail: string) {
   try {
@@ -29,7 +30,7 @@ export async function createDefaultOrganization(userId: string, userEmail: strin
     const trialEndDate = new Date();
     trialEndDate.setDate(trialEndDate.getDate() + 7);
     
-    const [trial] = await db.insert(trials).values({
+    await db.insert(trials).values({
       organizationId: org.id,
       status: 'active' as const,
       endDate: trialEndDate,
@@ -39,7 +40,7 @@ export async function createDefaultOrganization(userId: string, userEmail: strin
     
     return org;
   } catch (error) {
-    console.error('Error creating default organization:', error);
+    logger.error('Failed to create default organization', { userId, userEmail }, error instanceof Error ? error : new Error(String(error)));
     throw error;
   }
 }
@@ -419,7 +420,7 @@ export async function checkOrganizationLimits(orgId: string) {
   };
 }
 
-async function getTierLimits(stripePriceId: string) {
+async function getTierLimits(_stripePriceId: string) {
   // This would normally look up the tier from the pricing configuration
   // For now, returning default limits
   return {

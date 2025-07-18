@@ -12,6 +12,7 @@ import { analyzeSentiment } from '@/lib/llm/sentiment';
 import { queryTemplates } from '@/lib/llm/query-templates';
 import { checkQueryLimit, getBillingPeriodStart, getBillingPeriodEnd, PlanType } from '@/lib/subscription-limits';
 import { sql, eq, desc } from 'drizzle-orm';
+import { logger } from '@/lib/logger';
 
 const executeQuerySchema = z.object({
   queryId: z.string().optional(),
@@ -129,7 +130,7 @@ export async function POST(req: NextRequest) {
         );
 
       const currentMonthQueries = monthlyStats?.count || 0;
-      const { allowed, limit, remaining } = await checkQueryLimit(planType, currentMonthQueries);
+      const { allowed, limit } = await checkQueryLimit(planType, currentMonthQueries);
 
       if (!allowed) {
         return NextResponse.json({ 
@@ -183,28 +184,29 @@ export async function POST(req: NextRequest) {
       // Detect mentions in the response
       const mentions = await detectMentions(aiResponse, projectId);
 
-      // Store mentions with sentiment analysis
-      const mentionResults = [];
-      for (const mention of mentions) {
-        const sentiment = await analyzeSentiment(mention.context);
-        
-        const [storedMention] = await db.insert(brandMentions).values({
-          projectId,
-          queryExecutionId: execution.id,
-          platform: provider,
-          content: mention.context,
-          sentiment: sentiment.sentiment,
-          sentimentScore: sentiment.score,
-          context: mention.fullContext,
-          metadata: {
-            brandName: mention.brandName,
-            competitors: mention.competitors,
-            features: mention.features,
-          },
-        }).returning();
+      // Store mentions with sentiment analysis (parallelized for performance)
+      const mentionResults = await Promise.all(
+        mentions.map(async (mention) => {
+          const sentiment = await analyzeSentiment(mention.context);
+          
+          const [storedMention] = await db.insert(brandMentions).values({
+            projectId,
+            queryExecutionId: execution.id,
+            platform: provider,
+            content: mention.context,
+            sentiment: sentiment.sentiment,
+            sentimentScore: sentiment.score,
+            context: mention.fullContext,
+            metadata: {
+              brandName: mention.brandName,
+              competitors: mention.competitors,
+              features: mention.features,
+            },
+          }).returning();
 
-        mentionResults.push(storedMention);
-      }
+          return storedMention;
+        })
+      );
 
       // Update execution status
       await db.update(queryExecutions)
@@ -227,6 +229,16 @@ export async function POST(req: NextRequest) {
           })
           .where((trials, { eq }) => eq(trials.id, org.trial!.id));
       }
+
+      logger.info('Query execution completed successfully', {
+        userId: session.user.id,
+        projectId,
+        queryId: queryRecord.id,
+        executionId: execution.id,
+        provider,
+        mentionCount: mentionResults.length,
+        planType
+      });
 
       return NextResponse.json({
         execution: {
@@ -258,7 +270,11 @@ export async function POST(req: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Query execution error:', error);
+    logger.error('Query execution failed', { 
+      userId: session.user.id,
+      projectId,
+      provider 
+    }, error instanceof Error ? error : new Error(String(error)));
     return NextResponse.json(
       { error: 'Failed to execute query' },
       { status: 500 }
@@ -303,9 +319,18 @@ export async function GET(req: NextRequest) {
       .orderBy(desc(queryExecutions.createdAt))
       .limit(50);
 
+    logger.info('Execution history fetched', { 
+      userId: session.user.id, 
+      projectId, 
+      executionCount: executions.length 
+    });
+    
     return NextResponse.json({ executions });
   } catch (error) {
-    console.error('Failed to fetch executions:', error);
+    logger.error('Failed to fetch execution history', { 
+      userId: session.user.id, 
+      projectId 
+    }, error instanceof Error ? error : new Error(String(error)));
     return NextResponse.json(
       { error: 'Failed to fetch execution history' },
       { status: 500 }

@@ -116,7 +116,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold text-black">Competitor Analysis</h3>
               <p className="text-black/70 leading-relaxed">
-                See who's winning the AI mention battle. Track up to 10 competitors 
+                See who&apos;s winning the AI mention battle. Track up to 10 competitors 
                 and identify gaps in your visibility.
               </p>
             </Card>
@@ -138,7 +138,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold text-black">Gap Analysis</h3>
               <p className="text-black/70 leading-relaxed">
-                Discover queries where competitors appear but you don't. 
+                Discover queries where competitors appear but you don&apos;t. 
                 Turn blind spots into opportunities.
               </p>
             </Card>
@@ -160,7 +160,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold text-black">Sentiment Analysis</h3>
               <p className="text-black/70 leading-relaxed">
-                Understand not just if you're mentioned, but how. Track positive, 
+                Understand not just if you&apos;re mentioned, but how. Track positive, 
                 neutral, and negative sentiment trends.
               </p>
             </Card>
@@ -309,7 +309,7 @@ export default function Home() {
                 <span className="font-bold text-xl text-black">BrandLens</span>
               </div>
               <p className="text-black/70 text-sm">
-                Monitor your brand's AI visibility and stay ahead of the competition.
+                Monitor your brand&apos;s AI visibility and stay ahead of the competition.
               </p>
             </div>
             <div className="space-y-3">
