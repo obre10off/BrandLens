@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from '@/lib/auth/middleware';
 import { getUserOrganizations } from '@/lib/organizations';
 import { db } from '@/lib/db';
-import { brandMentions, queryExecutions, queries, projects } from '@/lib/db/schema';
+import { brandMentions, queryExecutions, queries } from '@/lib/db/schema';
 import { eq, desc, and } from 'drizzle-orm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +13,7 @@ import Link from 'next/link';
 export default async function ResponsesPage({
   searchParams
 }: {
-  searchParams: { executionId?: string }
+  searchParams: Promise<{ executionId?: string }>
 }) {
   const session = await getServerSession();
   
@@ -29,7 +29,8 @@ export default async function ResponsesPage({
     redirect('/onboarding');
   }
 
-  const executionId = searchParams?.executionId;
+  const resolvedSearchParams = await searchParams;
+  const executionId = resolvedSearchParams?.executionId;
 
   // Build where clause
   let whereClause = eq(brandMentions.projectId, currentProject.id);
@@ -189,7 +190,7 @@ export default async function ResponsesPage({
             </div>
           ) : (
             <div className="space-y-4">
-              {mentions.map(({ mention, execution, query }) => (
+              {mentions.map(({ mention, query }) => (
                 <div key={mention.id} className="border rounded-lg overflow-hidden">
                   <div className="p-4">
                     <div className="flex items-start gap-4">
