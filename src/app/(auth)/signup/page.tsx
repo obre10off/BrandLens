@@ -54,6 +54,7 @@ export default function SignupPage() {
         callbackURL: '/dashboard',
         errorCallbackURL: '/signup?error=google-failed',
         newUserCallbackURL: '/onboarding',
+        prompt: 'select_account', // Forces Google to show account picker
       });
     } catch (err) {
       toast.error('Failed to initiate Google sign up');

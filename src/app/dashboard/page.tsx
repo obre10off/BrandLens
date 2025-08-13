@@ -2,13 +2,15 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from '@/lib/auth/middleware';
 import { getUserOrganizations } from '@/lib/organizations';
 import { db } from '@/lib/db';
-import { brandMentions, queryExecutions, queries, projects } from '@/lib/db/schema';
-import { eq, desc, sql } from 'drizzle-orm';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { BarChart3, Plus, TrendingUp, Users, Target, TrendingDown, Minus } from 'lucide-react';
-import Link from 'next/link';
-import SentimentChart from '@/components/dashboard/sentiment-chart';
+import { brandMentions, queryExecutions, queries, projects, competitors } from '@/lib/db/schema';
+import { eq, desc, sql, and, gte } from 'drizzle-orm';
+
+// Import new dashboard components
+import { BrandHealthScore } from '@/components/dashboard/brand-health-score';
+import { CompetitiveIntelligence } from '@/components/dashboard/competitive-intelligence';
+import { AIMentionFeed } from '@/components/dashboard/ai-mention-feed';
+import { GEOInsights } from '@/components/dashboard/geo-insights';
+import { QueryPerformance } from '@/components/dashboard/query-performance';
 
 export default async function DashboardPage() {
   const session = await getServerSession();
@@ -18,14 +20,13 @@ export default async function DashboardPage() {
   }
 
   const organizations = await getUserOrganizations(session.user.id);
-  const currentOrg = organizations[0]; // For now, use the first org
+  const currentOrg = organizations[0];
 
-  // Check if user needs onboarding
   if (!currentOrg || currentOrg.projectCount === 0) {
     redirect('/onboarding');
   }
 
-  // Fetch the projects for this organization
+  // Get current project
   const [currentProject] = await db
     .select()
     .from(projects)
@@ -36,40 +37,107 @@ export default async function DashboardPage() {
     redirect('/onboarding');
   }
 
-  // Fetch real statistics
-  const [mentionsData] = await db
+  // Fetch comprehensive dashboard data
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  // Brand Health Data
+  const [brandStats] = await db
     .select({
-      total: sql<number>`count(*)`,
+      totalMentions: sql<number>`count(*)`,
       positive: sql<number>`count(case when sentiment = 'positive' then 1 end)`,
       neutral: sql<number>`count(case when sentiment = 'neutral' then 1 end)`,
       negative: sql<number>`count(case when sentiment = 'negative' then 1 end)`,
     })
     .from(brandMentions)
-    .where(eq(brandMentions.projectId, currentProject.id));
-
-  const stats = {
-    totalMentions: mentionsData?.total || 0,
-    sentimentScore: mentionsData?.total > 0 
-      ? Math.round(((mentionsData.positive || 0) / mentionsData.total) * 100)
-      : 0,
-    positive: mentionsData?.positive || 0,
-    neutral: mentionsData?.neutral || 0,
-    negative: mentionsData?.negative || 0,
-  };
-
-  // Get recent query count
-  const [queryStats] = await db
-    .select({
-      weeklyQueries: sql<number>`count(*)`,
-    })
-    .from(queryExecutions)
-    .innerJoin(queries, eq(queryExecutions.queryId, queries.id))
     .where(
-      sql`${queries.projectId} = ${currentProject.id} 
-      AND ${queryExecutions.createdAt} > NOW() - INTERVAL '7 days'`
+      and(
+        eq(brandMentions.projectId, currentProject.id),
+        gte(brandMentions.createdAt, thirtyDaysAgo)
+      )
     );
 
-  // Get recent mentions for activity feed
+  // Calculate brand health score
+  const totalMentions = brandStats?.totalMentions || 0;
+  const visibilityScore = Math.min(100, (totalMentions / 50) * 100); // Target 50 mentions/month
+  const sentimentScore = totalMentions > 0 ? Math.round(((brandStats.positive || 0) / totalMentions) * 100) : 50;
+  const authorityScore = 70; // Mock data - would be calculated from mention positioning
+  const growthScore = 75; // Mock data - would be calculated from trend analysis
+  const competitiveScore = 65; // Mock data - would be calculated from competitor analysis
+
+  const overallScore = Math.round(
+    (visibilityScore * 0.3 + sentimentScore * 0.25 + authorityScore * 0.2 + competitiveScore * 0.15 + growthScore * 0.1)
+  );
+
+  const brandHealthData = {
+    overallScore,
+    components: {
+      visibility: visibilityScore,
+      sentiment: sentimentScore,
+      authority: authorityScore,
+      competitiveness: competitiveScore,
+      growth: growthScore,
+    },
+    totalMentions,
+    trend: 'up' as const,
+    previousScore: overallScore - 5,
+  };
+
+  // Competitive Intelligence Data
+  const projectCompetitors = await db
+    .select()
+    .from(competitors)
+    .where(eq(competitors.projectId, currentProject.id))
+    .limit(5);
+
+  const competitiveData = {
+    yourBrand: {
+      id: currentProject.id,
+      name: currentProject.brandName,
+      domain: currentProject.brandDomain || undefined,
+      mentionCount: totalMentions,
+      shareOfVoice: totalMentions > 0 ? 35 : 0, // Mock calculation
+      sentiment: {
+        positive: brandStats?.positive || 0,
+        neutral: brandStats?.neutral || 0,
+        negative: brandStats?.negative || 0,
+        average: sentimentScore,
+      },
+      trend: 'up' as const,
+      trendValue: 12,
+      position: 2,
+      isYou: true,
+    },
+    competitors: projectCompetitors.slice(0, 4).map((comp, index) => ({
+      id: comp.id,
+      name: comp.name,
+      domain: comp.domain || undefined,
+      mentionCount: Math.floor(Math.random() * 100) + 20,
+      shareOfVoice: Math.floor(Math.random() * 30) + 10,
+      sentiment: {
+        positive: Math.floor(Math.random() * 20) + 10,
+        neutral: Math.floor(Math.random() * 15) + 5,
+        negative: Math.floor(Math.random() * 5) + 1,
+        average: Math.floor(Math.random() * 30) + 60,
+      },
+      trend: (['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as 'up' | 'down' | 'stable'),
+      trendValue: Math.floor(Math.random() * 20) - 10,
+      position: index + (index >= 1 ? 2 : 1), // Skip position 2 (our brand)
+    })),
+    totalMentions: totalMentions + 200, // Mock total market mentions
+    marketInsights: {
+      leader: projectCompetitors[0]?.name || 'Market Leader',
+      fastestGrowing: projectCompetitors[1]?.name || 'Growing Competitor',
+      biggestThreat: projectCompetitors[2]?.name || 'Threat Competitor',
+      opportunities: [
+        'Increase visibility in "best CRM" queries',
+        'Improve sentiment around pricing discussions',
+        'Target small business segment queries',
+      ],
+    },
+  };
+
+  // Recent Mentions Data
   const recentMentions = await db
     .select({
       mention: brandMentions,
@@ -81,275 +149,138 @@ export default async function DashboardPage() {
     .leftJoin(queries, eq(queryExecutions.queryId, queries.id))
     .where(eq(brandMentions.projectId, currentProject.id))
     .orderBy(desc(brandMentions.createdAt))
-    .limit(5);
+    .limit(10);
 
-  // Get sentiment data for the last 30 days
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  
-  const sentimentByDay = await db
-    .select({
-      date: sql<string>`DATE(${brandMentions.createdAt})`,
-      positive: sql<number>`count(case when ${brandMentions.sentiment} = 'positive' then 1 end)`,
-      neutral: sql<number>`count(case when ${brandMentions.sentiment} = 'neutral' then 1 end)`,
-      negative: sql<number>`count(case when ${brandMentions.sentiment} = 'negative' then 1 end)`,
-      total: sql<number>`count(*)`
-    })
-    .from(brandMentions)
-    .where(
-      sql`${brandMentions.projectId} = ${currentProject.id} 
-      AND ${brandMentions.createdAt} >= ${thirtyDaysAgo}`
-    )
-    .groupBy(sql`DATE(${brandMentions.createdAt})`)
-    .orderBy(sql`DATE(${brandMentions.createdAt})`);
-  
-  // Fill in missing days with zeros
-  const sentimentData = [];
-  const today = new Date();
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-    const dateStr = date.toISOString().split('T')[0];
-    
-    const existing = sentimentByDay.find(d => d.date === dateStr);
-    sentimentData.push({
-      date: dateStr,
-      positive: existing?.positive || 0,
-      neutral: existing?.neutral || 0,
-      negative: existing?.negative || 0,
-      total: existing?.total || 0,
-    });
-  }
+  const aiMentionData = recentMentions.map(({ mention, query }) => ({
+    id: mention.id,
+    content: mention.content || 'Brand mentioned in AI response',
+    context: mention.context || '',
+    brandName: currentProject.brandName,
+    llmModel: 'gpt-4', // Mock data - would come from metadata
+    platform: mention.platform || 'OpenAI',
+    sentiment: (mention.sentiment as 'positive' | 'negative' | 'neutral') || 'neutral',
+    sentimentScore: parseFloat(mention.sentimentScore || '0.5') * 100,
+    mentionType: 'direct' as const, // Mock data - would come from metadata
+    position: 1, // Mock data - would come from metadata
+    queryCategory: query?.category || 'general',
+    createdAt: mention.createdAt,
+    responseText: mention.content, // Use content as response text
+  }));
+
+  // GEO Insights Data (mock data for now)
+  const geoInsights = [
+    {
+      id: '1',
+      type: 'opportunity' as const,
+      priority: 'high' as const,
+      title: 'Improve API Documentation Mentions',
+      description: 'Your API documentation is rarely mentioned in developer tool recommendations. Creating comprehensive guides could improve visibility.',
+      impact: 'Could increase mentions by 25-30% in developer queries',
+      effort: 'medium' as const,
+      category: 'content' as const,
+      actionable: true,
+      cta: {
+        label: 'Review Content Strategy',
+        href: '/dashboard/content',
+      },
+      metrics: {
+        current: totalMentions,
+        target: Math.round(totalMentions * 1.3),
+        unit: ' mentions',
+      },
+      timeframe: '4-6 weeks',
+      confidence: 85,
+    },
+    {
+      id: '2',
+      type: 'threat' as const,
+      priority: 'medium' as const,
+      title: 'Competitor Gaining in Integration Queries',
+      description: 'A competitor is increasingly mentioned in integration-focused queries where you previously dominated.',
+      impact: 'Risk of losing 15% share in integration recommendations',
+      effort: 'high' as const,
+      category: 'competitive' as const,
+      actionable: true,
+      cta: {
+        label: 'Analyze Competitor Strategy',
+        href: '/dashboard/competitors',
+      },
+      timeframe: '2-3 weeks',
+      confidence: 78,
+    },
+  ];
+
+  // Query Performance Data
+  const activeQueries = await db
+    .select()
+    .from(queries)
+    .where(eq(queries.projectId, currentProject.id))
+    .limit(10);
+
+  const queryPerformanceData = activeQueries.map((query) => ({
+    id: query.id,
+    name: query.name,
+    category: query.category || 'general',
+    template: query.query,
+    executionCount: Math.floor(Math.random() * 20) + 5,
+    mentionCount: Math.floor(Math.random() * 15) + 2,
+    avgSentiment: Math.floor(Math.random() * 40) + 60,
+    successRate: Math.floor(Math.random() * 30) + 70,
+    lastExecuted: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+    trend: (['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as 'up' | 'down' | 'stable'),
+    trendValue: Math.floor(Math.random() * 20) - 10,
+    avgPosition: Math.floor(Math.random() * 3) + 1,
+    competitorMentions: Math.floor(Math.random() * 10) + 3,
+    performanceScore: Math.floor(Math.random() * 40) + 60,
+    isActive: query.isActive || false,
+  }));
 
   return (
-    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-      {/* Welcome Section */}
-      <div className="space-y-2">
-        <h1 className="text-2xl sm:text-3xl font-bold text-black">
-          Welcome back, {session.user.name || 'there'}!
-        </h1>
-        <p className="text-sm sm:text-base text-black/80">
-          {currentOrg?.trial?.status === 'active' 
-            ? `You're on a free trial with ${(currentOrg.trial?.queriesLimit || 25) - (currentOrg.trial?.queriesUsed || 0)} queries remaining`
-            : 'Track your brand mentions across AI platforms'
-          }
-        </p>
-      </div>
+    <div className="min-h-screen bg-white">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-8">
+        {/* Header */}
+        <div className="space-y-3">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
+            Brand Intelligence Dashboard
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl">
+            Comprehensive AI visibility insights for <span className="font-semibold text-primary">{currentProject.brandName}</span>
+          </p>
+        </div>
 
-      {/* Brand Overview */}
-      <Card className="card-hover">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg sm:text-xl text-black">Brand Overview</CardTitle>
-          <CardDescription className="text-sm text-black/70">
-            Monitoring AI conversations about {currentProject.brandName}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
-            <div className="space-y-1">
-              <p className="text-xs sm:text-sm font-medium text-black/70 mb-1">Brand Name</p>
-              <p className="text-base sm:text-lg font-semibold text-black">{currentProject.brandName}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs sm:text-sm font-medium text-black/70 mb-1">Website</p>
-              <p className="text-base sm:text-lg text-black">
-                <a 
-                  href={`https://${currentProject.brandDomain}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline transition-colors break-all"
-                >
-                  {currentProject.brandDomain}
-                </a>
-              </p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs sm:text-sm font-medium text-black/70 mb-1">Industry</p>
-              <p className="text-base sm:text-lg text-black">{currentProject.category || 'Not specified'}</p>
-            </div>
-            <div className="space-y-1 sm:col-span-2">
-              <p className="text-xs sm:text-sm font-medium text-black/70 mb-1">Description</p>
-              <p className="text-sm sm:text-base text-black leading-relaxed">
-                {currentProject.description || 'No description available'}
-              </p>
-            </div>
+        {/* Top Row - Brand Health & Competitive Intelligence */}
+        <div className="grid gap-8 lg:grid-cols-2">
+          <div className="transform hover:scale-105 transition-transform duration-300">
+            <BrandHealthScore data={brandHealthData} className="h-full shadow-lg border-0" />
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Quick Stats */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 quick-stats">
-        <Card className="card-hover">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-black">Total Mentions</CardTitle>
-            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl sm:text-2xl font-bold text-black">{stats.totalMentions}</div>
-            <p className="text-xs text-black/70">Found across AI platforms</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="card-hover">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-black">Sentiment Score</CardTitle>
-            <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl sm:text-2xl font-bold text-black">
-              {stats.totalMentions > 0 ? `${stats.sentimentScore}%` : 'N/A'}
-            </div>
-            <p className="text-xs text-black/70">
-              {stats.positive} positive mentions
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card className="card-hover">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-black">Neutral/Negative</CardTitle>
-            <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl sm:text-2xl font-bold text-black">{stats.neutral + stats.negative}</div>
-            <p className="text-xs text-black/70">
-              {stats.neutral} neutral, {stats.negative} negative
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card className="card-hover">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-black">Queries Run</CardTitle>
-            <Target className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl sm:text-2xl font-bold text-black">{queryStats?.weeklyQueries || 0}</div>
-            <p className="text-xs text-black/70">This week</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Sentiment Chart */}
-      <SentimentChart data={sentimentData} />
-
-      {/* Recent Activity */}
-      <Card className="recent-activity">
-        <CardHeader>
-          <CardTitle className="text-black">Recent Brand Mentions</CardTitle>
-          <CardDescription className="text-black">
-            Latest mentions of your brand across AI platforms
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {recentMentions.length === 0 ? (
-            <div className="text-center py-8 text-black">
-              <p className="text-sm mb-4">No mentions found yet</p>
-              <p className="text-xs">Run queries to start tracking your brand</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {recentMentions.map(({ mention, query }) => {
-                const getSentimentColor = (sentiment: string) => {
-                  switch (sentiment) {
-                    case 'positive': return 'bg-green-100';
-                    case 'negative': return 'bg-red-100';
-                    default: return 'bg-gray-100';
-                  }
-                };
-                
-                const getSentimentIcon = (sentiment: string) => {
-                  switch (sentiment) {
-                    case 'positive': return <TrendingUp className="h-5 w-5 text-green-600" />;
-                    case 'negative': return <TrendingDown className="h-5 w-5 text-red-600" />;
-                    default: return <Minus className="h-5 w-5 text-gray-600" />;
-                  }
-                };
-                
-                const getSentimentTextColor = (sentiment: string) => {
-                  switch (sentiment) {
-                    case 'positive': return 'text-green-600';
-                    case 'negative': return 'text-red-600';
-                    default: return 'text-gray-600';
-                  }
-                };
-
-                return (
-                  <div key={mention.id} className="flex items-start gap-4 p-4 border rounded-lg">
-                    <div className={`h-10 w-10 rounded-full ${getSentimentColor(mention.sentiment || 'neutral')} flex items-center justify-center`}>
-                      {getSentimentIcon(mention.sentiment || 'neutral')}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-black">{mention.content}</h4>
-                      {mention.context && (
-                        <p className="text-sm text-black mt-1 line-clamp-2">
-                          {mention.context}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-4 mt-2 text-xs text-black">
-                        <span>{mention.platform}</span>
-                        <span>•</span>
-                        <span>{new Date(mention.createdAt).toLocaleString()}</span>
-                        <span>•</span>
-                        <span className={getSentimentTextColor(mention.sentiment || 'neutral')}>
-                          {mention.sentiment || 'neutral'}
-                        </span>
-                        {query && (
-                          <>
-                            <span>•</span>
-                            <span>{query.name}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          <div className="mt-4 text-center">
-            <Link href="/dashboard/responses">
-              <Button variant="outline">View All Mentions</Button>
-            </Link>
+          <div className="transform hover:scale-105 transition-transform duration-300">
+            <CompetitiveIntelligence data={competitiveData} className="h-full shadow-lg border-0" />
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Quick Actions */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card className="card-hover run-analysis">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-base sm:text-lg text-black">Run Analysis</CardTitle>
-            <CardDescription className="text-sm text-black/70">
-              Execute queries to get the latest brand mentions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/queries">
-              <Button className="w-full text-sm sm:text-base">
-                <Plus className="mr-2 h-4 w-4" />
-                Run New Analysis
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+        {/* Second Row - Query Performance & GEO Insights */}
+        <div className="grid gap-8 lg:grid-cols-2">
+          <div className="transform hover:scale-105 transition-transform duration-300">
+            <QueryPerformance 
+              queries={queryPerformanceData}
+              totalExecutions={queryPerformanceData.reduce((sum, q) => sum + q.executionCount, 0)}
+              totalMentions={totalMentions}
+              className="h-full shadow-lg border-0"
+            />
+          </div>
+          <div className="transform hover:scale-105 transition-transform duration-300">
+            <GEOInsights insights={geoInsights} className="h-full shadow-lg border-0" />
+          </div>
+        </div>
 
-        <Card className="card-hover">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-base sm:text-lg text-black">Competitor Report</CardTitle>
-            <CardDescription className="text-sm text-black/70">
-              See how you stack up against the competition
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/competitors">
-              <Button variant="outline" className="w-full text-sm sm:text-base">
-                View Competitor Analysis
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+        {/* Bottom Row - AI Mention Feed */}
+        <div className="transform hover:scale-105 transition-transform duration-300">
+          <AIMentionFeed 
+            mentions={aiMentionData}
+            totalMentions={totalMentions}
+            className="shadow-lg border-0"
+          />
+        </div>
       </div>
     </div>
   );

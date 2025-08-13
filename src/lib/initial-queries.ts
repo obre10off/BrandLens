@@ -7,6 +7,12 @@ import { analyzeSentiment } from '@/lib/llm/sentiment';
 
 export async function runInitialQueries(projectId: string) {
   try {
+    // Check if required environment variables are available
+    if (!process.env.OPENAI_API_KEY) {
+      console.warn('OPENAI_API_KEY not found, skipping initial queries');
+      return { success: false, error: 'Missing OpenAI API key' };
+    }
+
     // Get all active queries for the project
     const projectQueries = await db
       .select()
@@ -19,6 +25,11 @@ export async function runInitialQueries(projectId: string) {
       );
 
     console.log(`Running ${projectQueries.length} initial queries for project ${projectId}`);
+
+    if (projectQueries.length === 0) {
+      console.log('No active queries found for project');
+      return { success: true, queriesRun: 0 };
+    }
 
     // Run each query
     for (const query of projectQueries) {
@@ -39,29 +50,40 @@ export async function runInitialQueries(projectId: string) {
         });
 
         // Detect mentions in the response
-        const mentions = await detectMentions(aiResponse, projectId);
+        let mentions = [];
+        try {
+          mentions = await detectMentions(aiResponse, projectId);
+        } catch (error) {
+          console.error('Failed to detect mentions:', error);
+          mentions = []; // Continue with empty mentions
+        }
 
         // Store mentions with sentiment analysis
         const mentionResults = [];
         for (const mention of mentions) {
-          const sentiment = await analyzeSentiment(mention.context);
+          try {
+            const sentiment = await analyzeSentiment(mention.context);
           
-          const [storedMention] = await db.insert(brandMentions).values({
-            projectId,
-            queryExecutionId: execution.id,
-            platform: 'openai',
-            content: mention.context,
-            sentiment: sentiment.sentiment,
-            sentimentScore: sentiment.score,
-            context: mention.fullContext,
-            metadata: {
-              brandName: mention.brandName,
-              competitors: mention.competitors,
-              features: mention.features,
-            },
-          }).returning();
+            const [storedMention] = await db.insert(brandMentions).values({
+              projectId,
+              queryExecutionId: execution.id,
+              platform: 'openai',
+              content: mention.context,
+              sentiment: sentiment.sentiment,
+              sentimentScore: sentiment.score,
+              context: mention.fullContext,
+              metadata: {
+                brandName: mention.brandName,
+                competitors: mention.competitors,
+                features: mention.features,
+              },
+            }).returning();
 
-          mentionResults.push(storedMention);
+            mentionResults.push(storedMention);
+          } catch (error) {
+            console.error('Failed to process mention:', error);
+            // Continue with next mention
+          }
         }
 
         // Update execution status

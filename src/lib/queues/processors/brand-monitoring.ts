@@ -60,7 +60,11 @@ export function createBrandMonitoringWorker() {
         ...project.competitors.map(c => c.name),
       ];
 
-      const results = [];
+      const results: Array<{
+        queryId: string;
+        model: string;
+        mentions: MentionResult[];
+      }> = [];
 
       // Process each query
       for (const query of project.queries) {
@@ -74,7 +78,9 @@ export function createBrandMonitoringWorker() {
         const cacheKey = `${CACHE_PREFIXES.queryResult}${query.id}`;
         const cached = await RedisCache.get(cacheKey);
         if (cached) {
-          results.push(cached);
+          // Type assertion for cached result
+          const cachedResult = cached as { queryId: string; model: string; mentions: MentionResult[] };
+          results.push(cachedResult);
           continue;
         }
 
@@ -100,35 +106,37 @@ export function createBrandMonitoringWorker() {
             // Extract and store mentions
             const mentions = extractMentions(
               response.text,
-              brandsToTrack,
-              project.brandName
+              brandsToTrack
             );
 
             for (const mention of mentions) {
               await db.insert(brandMentions).values({
                 projectId,
-                queryId: query.id,
-                brandName: mention.brandName,
-                llmModel: model,
-                responseText: response.text,
-                mentionContext: mention.context,
+                platform: model,
+                content: mention.brandName,
                 sentiment: mention.sentiment,
                 sentimentScore: mention.score.toString(),
-                position: mention.position,
-                mentionType: mention.type,
+                context: mention.context,
+                metadata: {
+                  mentionType: mention.type,
+                  position: mention.position,
+                  queryId: query.id,
+                },
               });
             }
 
-            results.push({
+            const result = {
               queryId: query.id,
               model,
               mentions,
-            });
+            };
+            
+            results.push(result);
 
             // Cache the result
             await RedisCache.set(
               cacheKey,
-              { queryId: query.id, model, mentions },
+              result,
               CACHE_TTL.queryResult
             );
           } catch (error) {
@@ -150,10 +158,10 @@ export function createBrandMonitoringWorker() {
     },
     {
       connection: {
-        host: process.env.UPSTASH_REDIS_REST_URL!.replace('https://', '').split('.')[0],
-        port: 6379,
-        password: process.env.UPSTASH_REDIS_REST_TOKEN,
-        tls: {},
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379'),
+        password: process.env.REDIS_PASSWORD,
+        tls: process.env.REDIS_TLS === 'true' ? {} : undefined,
       },
       concurrency: 5,
       limiter: {
@@ -225,8 +233,7 @@ Provide balanced, factual information.`;
 
 function extractMentions(
   text: string,
-  brandsToTrack: string[],
-  ownBrand: string
+  brandsToTrack: string[]
 ): MentionResult[] {
   const mentions: MentionResult[] = [];
   const textLower = text.toLowerCase();
@@ -245,7 +252,7 @@ function extractMentions(
       const context = text.substring(contextStart, contextEnd);
 
       // Determine mention type
-      const type = determineMentionType(context, brand, ownBrand);
+      const type = determineMentionType(context);
 
       // Analyze sentiment
       const sentiment = analyzeSentiment(context);
@@ -268,9 +275,7 @@ function extractMentions(
 }
 
 function determineMentionType(
-  context: string,
-  brand: string,
-  ownBrand: string
+  context: string
 ): 'direct' | 'feature' | 'competitive' {
   const contextLower = context.toLowerCase();
   

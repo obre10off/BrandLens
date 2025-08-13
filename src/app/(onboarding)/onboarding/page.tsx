@@ -252,13 +252,28 @@ export default function OnboardingPage() {
                         <SelectTrigger id="role">
                           <SelectValue placeholder="Select your role" />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="founder">Founder/CEO</SelectItem>
-                          <SelectItem value="marketing">Marketing</SelectItem>
-                          <SelectItem value="product">Product</SelectItem>
-                          <SelectItem value="engineering">Engineering</SelectItem>
-                          <SelectItem value="sales">Sales</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
+                        <SelectContent 
+                          className="!bg-white border-2 border-gray-400 shadow-2xl rounded-xl z-[9999] p-2"
+                          style={{ backgroundColor: '#ffffff', opacity: 1 }}
+                        >
+                          <SelectItem value="founder" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">Founder/CEO</span>
+                          </SelectItem>
+                          <SelectItem value="marketing" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">Marketing</span>
+                          </SelectItem>
+                          <SelectItem value="product" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">Product</span>
+                          </SelectItem>
+                          <SelectItem value="engineering" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">Engineering</span>
+                          </SelectItem>
+                          <SelectItem value="sales" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">Sales</span>
+                          </SelectItem>
+                          <SelectItem value="other" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">Other</span>
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -272,12 +287,25 @@ export default function OnboardingPage() {
                         <SelectTrigger id="company-size">
                           <SelectValue placeholder="Select company size" />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1-10">1-10 employees</SelectItem>
-                          <SelectItem value="11-50">11-50 employees</SelectItem>
-                          <SelectItem value="51-200">51-200 employees</SelectItem>
-                          <SelectItem value="201-500">201-500 employees</SelectItem>
-                          <SelectItem value="500+">500+ employees</SelectItem>
+                        <SelectContent 
+                          className="!bg-white border-2 border-gray-400 shadow-2xl rounded-xl z-[9999] p-2"
+                          style={{ backgroundColor: '#ffffff', opacity: 1 }}
+                        >
+                          <SelectItem value="1-10" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">1-10 employees</span>
+                          </SelectItem>
+                          <SelectItem value="11-50" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">11-50 employees</span>
+                          </SelectItem>
+                          <SelectItem value="51-200" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">51-200 employees</span>
+                          </SelectItem>
+                          <SelectItem value="201-500" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">201-500 employees</span>
+                          </SelectItem>
+                          <SelectItem value="500+" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">500+ employees</span>
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -292,12 +320,25 @@ export default function OnboardingPage() {
                           <SelectTrigger id="language">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="en">English</SelectItem>
-                            <SelectItem value="es">Spanish</SelectItem>
-                            <SelectItem value="fr">French</SelectItem>
-                            <SelectItem value="de">German</SelectItem>
-                            <SelectItem value="pt">Portuguese</SelectItem>
+                          <SelectContent 
+                            className="!bg-white border-2 border-gray-400 shadow-2xl rounded-xl z-[9999] p-2"
+                            style={{ backgroundColor: '#ffffff', opacity: 1 }}
+                          >
+                            <SelectItem value="en" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                              <span className="text-sm text-gray-900">English</span>
+                            </SelectItem>
+                            <SelectItem value="es" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                              <span className="text-sm text-gray-900">Spanish</span>
+                            </SelectItem>
+                            <SelectItem value="fr" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                              <span className="text-sm text-gray-900">French</span>
+                            </SelectItem>
+                            <SelectItem value="de" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                              <span className="text-sm text-gray-900">German</span>
+                            </SelectItem>
+                            <SelectItem value="pt" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                              <span className="text-sm text-gray-900">Portuguese</span>
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -310,15 +351,34 @@ export default function OnboardingPage() {
                           <SelectTrigger id="country">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="US">United States</SelectItem>
-                            <SelectItem value="UK">United Kingdom</SelectItem>
-                            <SelectItem value="CA">Canada</SelectItem>
-                            <SelectItem value="DE">Germany</SelectItem>
-                            <SelectItem value="FR">France</SelectItem>
-                            <SelectItem value="ES">Spain</SelectItem>
-                            <SelectItem value="BR">Brazil</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
+                          <SelectContent 
+                            className="!bg-white border-2 border-gray-400 shadow-2xl rounded-xl z-[9999] p-2"
+                            style={{ backgroundColor: '#ffffff', opacity: 1 }}
+                          >
+                            <SelectItem value="US" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                              <span className="text-sm text-gray-900">United States</span>
+                            </SelectItem>
+                            <SelectItem value="UK" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                              <span className="text-sm text-gray-900">United Kingdom</span>
+                            </SelectItem>
+                            <SelectItem value="CA" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                              <span className="text-sm text-gray-900">Canada</span>
+                            </SelectItem>
+                            <SelectItem value="DE" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                              <span className="text-sm text-gray-900">Germany</span>
+                            </SelectItem>
+                            <SelectItem value="FR" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                              <span className="text-sm text-gray-900">France</span>
+                            </SelectItem>
+                            <SelectItem value="ES" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                              <span className="text-sm text-gray-900">Spain</span>
+                            </SelectItem>
+                            <SelectItem value="BR" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                              <span className="text-sm text-gray-900">Brazil</span>
+                            </SelectItem>
+                            <SelectItem value="other" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                              <span className="text-sm text-gray-900">Other</span>
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -333,13 +393,28 @@ export default function OnboardingPage() {
                         <SelectTrigger id="referral">
                           <SelectValue placeholder="Select source" />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="google">Google Search</SelectItem>
-                          <SelectItem value="social">Social Media</SelectItem>
-                          <SelectItem value="friend">Friend/Colleague</SelectItem>
-                          <SelectItem value="blog">Blog Post</SelectItem>
-                          <SelectItem value="producthunt">Product Hunt</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
+                        <SelectContent 
+                          className="!bg-white border-2 border-gray-400 shadow-2xl rounded-xl z-[9999] p-2"
+                          style={{ backgroundColor: '#ffffff', opacity: 1 }}
+                        >
+                          <SelectItem value="google" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">Google Search</span>
+                          </SelectItem>
+                          <SelectItem value="social" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">Social Media</span>
+                          </SelectItem>
+                          <SelectItem value="friend" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">Friend/Colleague</span>
+                          </SelectItem>
+                          <SelectItem value="blog" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">Blog Post</span>
+                          </SelectItem>
+                          <SelectItem value="producthunt" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">Product Hunt</span>
+                          </SelectItem>
+                          <SelectItem value="other" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                            <span className="text-sm text-gray-900">Other</span>
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

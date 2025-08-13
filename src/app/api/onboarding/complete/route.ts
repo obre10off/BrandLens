@@ -24,8 +24,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No organization found' }, { status: 400 });
     }
 
-    // Extract domain from website
-    const domain = new URL(companyInfo.website).hostname.replace('www.', '');
+    // Extract domain from website with error handling
+    let domain: string;
+    try {
+      domain = new URL(companyInfo.website).hostname.replace('www.', '');
+    } catch (error) {
+      console.error('Failed to parse website URL:', error);
+      // Extract domain manually if URL parsing fails
+      domain = companyInfo.website
+        .replace(/^https?:\/\//, '')
+        .replace(/^www\./, '')
+        .split('/')[0]
+        .split('?')[0]
+        .toLowerCase();
+    }
 
     // Create the first project
     const [project] = await db
@@ -41,53 +53,76 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
-    // Add suggested competitors
-    if (analysisResult.competitors && analysisResult.competitors.length > 0) {
-      const competitorData = analysisResult.competitors.slice(0, 5).map((name: string) => ({
-        projectId: project.id,
-        name,
-        description: `Competitor in the ${analysisResult.industry} space`,
-      }));
+    // Add suggested competitors with error handling
+    if (analysisResult?.competitors && Array.isArray(analysisResult.competitors) && analysisResult.competitors.length > 0) {
+      try {
+        const competitorData = analysisResult.competitors
+          .slice(0, 5)
+          .filter((name: any) => name && typeof name === 'string' && name.trim().length > 0)
+          .map((name: string) => ({
+            projectId: project.id,
+            name: name.trim(),
+            description: `Competitor in the ${analysisResult.industry || 'business'} space`,
+          }));
 
-      await db.insert(competitors).values(competitorData);
+        if (competitorData.length > 0) {
+          await db.insert(competitors).values(competitorData);
+        }
+      } catch (error) {
+        console.error('Failed to insert competitors:', error);
+        // Continue with onboarding even if competitors fail to insert
+      }
     }
 
-    // Create initial queries for the brand
-    const { queries: queriesTable } = await import('@/lib/db/schema');
-    const initialQueries = [
-      {
-        projectId: project.id,
-        name: `Best ${analysisResult.industry} tools`,
-        query: `What are the best ${analysisResult.industry} tools and platforms? Include ${companyInfo.name}`,
-        category: 'general',
-        isActive: true,
-      },
-      {
-        projectId: project.id,
-        name: `${companyInfo.name} alternatives`,
-        query: `What are the best alternatives to ${companyInfo.name}? How do they compare?`,
-        category: 'alternative',
-        isActive: true,
-      },
-      {
-        projectId: project.id,
-        name: `${companyInfo.name} features`,
-        query: `What are the key features and capabilities of ${companyInfo.name}? What makes it unique?`,
-        category: 'feature',
-        isActive: true,
-      },
-    ];
+    // Create initial queries for the brand with error handling
+    try {
+      const { queries: queriesTable } = await import('@/lib/db/schema');
+      const industry = analysisResult?.industry || 'business';
+      const brandName = companyInfo.name;
+      
+      const initialQueries = [
+        {
+          projectId: project.id,
+          name: `Best ${industry} tools`,
+          query: `What are the best ${industry} tools and platforms? Include ${brandName} in your comparison.`,
+          category: 'general',
+          isActive: true,
+        },
+        {
+          projectId: project.id,
+          name: `${brandName} alternatives`,
+          query: `What are the best alternatives to ${brandName}? How do they compare in features and pricing?`,
+          category: 'alternative',
+          isActive: true,
+        },
+        {
+          projectId: project.id,
+          name: `${brandName} features`,
+          query: `What are the key features and capabilities of ${brandName}? What makes it unique in the market?`,
+          category: 'feature',
+          isActive: true,
+        },
+      ];
 
-    await db.insert(queriesTable).values(initialQueries);
+      await db.insert(queriesTable).values(initialQueries);
+    } catch (error) {
+      console.error('Failed to create initial queries:', error);
+      // Continue with onboarding even if initial queries fail to create
+    }
 
     // Update user profile with personal info
-    await db
-      .update(users)
-      .set({
-        name: `${personalInfo.firstName} ${personalInfo.lastName}`,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, session.user.id));
+    try {
+      await db
+        .update(users)
+        .set({
+          name: `${personalInfo.firstName} ${personalInfo.lastName}`.trim(),
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, session.user.id));
+    } catch (error) {
+      console.error('Failed to update user profile:', error);
+      // Continue with onboarding even if user profile update fails
+    }
 
     // Store additional metadata (in a real app, you might have a user_profiles table)
     // For now, we'll just log it
@@ -97,12 +132,18 @@ export async function POST(request: NextRequest) {
       analysisResult,
     });
 
-    // Run initial queries in the background
-    import('@/lib/initial-queries').then(({ runInitialQueries }) => {
-      runInitialQueries(project.id).catch(error => {
-        console.error('Failed to run initial queries:', error);
+    // Run initial queries in the background (non-blocking)
+    try {
+      import('@/lib/initial-queries').then(({ runInitialQueries }) => {
+        runInitialQueries(project.id).catch(error => {
+          console.error('Failed to run initial queries:', error);
+          // Don't fail the onboarding if initial queries fail
+        });
       });
-    });
+    } catch (error) {
+      console.warn('Could not start initial queries:', error);
+      // Continue with successful onboarding even if queries can't start
+    }
 
     return NextResponse.json({ 
       success: true,
