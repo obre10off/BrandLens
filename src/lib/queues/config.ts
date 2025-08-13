@@ -3,7 +3,8 @@ import IORedis from 'ioredis';
 
 // Create Redis connection for BullMQ
 // BullMQ requires ioredis, not @upstash/redis
-const connection = new IORedis(process.env.UPSTASH_REDIS_REST_URL!, {
+// Use REDIS_URL (connection string) instead of UPSTASH_REDIS_REST_URL (REST API)
+const connection = new IORedis(process.env.REDIS_URL!, {
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
 });

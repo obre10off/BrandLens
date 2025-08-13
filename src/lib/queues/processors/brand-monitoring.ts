@@ -150,9 +150,9 @@ export function createBrandMonitoringWorker() {
     },
     {
       connection: {
-        host: process.env.UPSTASH_REDIS_REST_URL!.replace('https://', '').split('.')[0],
+        host: 'divine-ray-16896.upstash.io',
         port: 6379,
-        password: process.env.UPSTASH_REDIS_REST_TOKEN,
+        password: 'AUIAAAIjcDExNDlmZGYzYjRhZmE0Y2FjODYwYjA5MTAwY2M5MmVkNXAxMA',
         tls: {},
       },
       concurrency: 5,
