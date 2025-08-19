@@ -4,14 +4,17 @@ import Stripe from 'stripe';
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
 if (!stripeSecretKey || stripeSecretKey === 'sk_test_...') {
-  console.warn('⚠️  Stripe Secret Key not configured. Payment features will be disabled.');
+  console.warn(
+    '⚠️  Stripe Secret Key not configured. Payment features will be disabled.'
+  );
 }
 
-export const stripe = stripeSecretKey && stripeSecretKey !== 'sk_test_...' 
-  ? new Stripe(stripeSecretKey, {
-      apiVersion: '2025-06-30.basil',
-    })
-  : null;
+export const stripe =
+  stripeSecretKey && stripeSecretKey !== 'sk_test_...'
+    ? new Stripe(stripeSecretKey, {
+        apiVersion: '2025-06-30.basil',
+      })
+    : null;
 
 // Pricing configuration
 export const pricingTiers = {
@@ -19,7 +22,10 @@ export const pricingTiers = {
     id: 'starter',
     name: 'Starter',
     price: 39,
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER || process.env.STRIPE_PRICE_STARTER || 'price_starter_placeholder',
+    priceId:
+      process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER ||
+      process.env.STRIPE_PRICE_STARTER ||
+      'price_starter_placeholder',
     features: {
       projects: 1,
       monitors: 2,
@@ -44,7 +50,10 @@ export const pricingTiers = {
     id: 'growth',
     name: 'Growth',
     price: 79,
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_GROWTH || process.env.STRIPE_PRICE_GROWTH || 'price_growth_placeholder',
+    priceId:
+      process.env.NEXT_PUBLIC_STRIPE_PRICE_GROWTH ||
+      process.env.STRIPE_PRICE_GROWTH ||
+      'price_growth_placeholder',
     popular: true,
     features: {
       projects: 2,
@@ -73,7 +82,10 @@ export const pricingTiers = {
     id: 'scale',
     name: 'Scale',
     price: 149,
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_SCALE || process.env.STRIPE_PRICE_SCALE || 'price_scale_placeholder',
+    priceId:
+      process.env.NEXT_PUBLIC_STRIPE_PRICE_SCALE ||
+      process.env.STRIPE_PRICE_SCALE ||
+      'price_scale_placeholder',
     features: {
       projects: 5,
       monitors: 15,

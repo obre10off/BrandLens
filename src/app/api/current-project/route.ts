@@ -8,7 +8,7 @@ import { eq } from 'drizzle-orm';
 export async function GET() {
   try {
     const session = await getServerSession();
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -34,7 +34,7 @@ export async function GET() {
     // Determine queries limit based on subscription status
     let queriesLimit = 0;
     let queriesUsed = 0;
-    
+
     if (currentOrg.trial?.status === 'active') {
       queriesLimit = currentOrg.trial.queriesLimit || 25;
       queriesUsed = currentOrg.trial.queriesUsed || 0;

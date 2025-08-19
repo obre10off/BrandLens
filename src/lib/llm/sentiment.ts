@@ -18,27 +18,28 @@ export async function analyzeSentiment(text: string): Promise<SentimentResult> {
           sentiment: {
             type: 'string',
             enum: ['positive', 'neutral', 'negative'],
-            description: 'Overall sentiment of the text'
+            description: 'Overall sentiment of the text',
           },
           score: {
             type: 'number',
             minimum: -1,
             maximum: 1,
-            description: 'Sentiment score from -1 (most negative) to 1 (most positive)'
+            description:
+              'Sentiment score from -1 (most negative) to 1 (most positive)',
           },
           confidence: {
             type: 'number',
             minimum: 0,
             maximum: 1,
-            description: 'Confidence level of the sentiment analysis'
+            description: 'Confidence level of the sentiment analysis',
           },
           keywords: {
             type: 'array',
             items: { type: 'string' },
-            description: 'Key words/phrases that influenced the sentiment'
-          }
+            description: 'Key words/phrases that influenced the sentiment',
+          },
         },
-        required: ['sentiment', 'score', 'confidence', 'keywords']
+        required: ['sentiment', 'score', 'confidence', 'keywords'],
       }),
       prompt: `Analyze the sentiment of the following text about a brand or product. 
       Determine if the overall sentiment is positive, neutral, or negative.
@@ -56,7 +57,7 @@ export async function analyzeSentiment(text: string): Promise<SentimentResult> {
       sentiment: 'neutral',
       score: 0,
       confidence: 0.5,
-      keywords: []
+      keywords: [],
     };
   }
 }
@@ -64,53 +65,91 @@ export async function analyzeSentiment(text: string): Promise<SentimentResult> {
 // Simple rule-based sentiment analysis as fallback
 export function analyzeSentimentSimple(text: string): SentimentResult {
   const lowerText = text.toLowerCase();
-  
+
   const positiveWords = [
-    'excellent', 'amazing', 'great', 'fantastic', 'wonderful', 'best',
-    'love', 'perfect', 'awesome', 'outstanding', 'superior', 'recommend',
-    'impressive', 'brilliant', 'exceptional', 'remarkable', 'reliable',
-    'efficient', 'powerful', 'intuitive', 'seamless', 'innovative'
+    'excellent',
+    'amazing',
+    'great',
+    'fantastic',
+    'wonderful',
+    'best',
+    'love',
+    'perfect',
+    'awesome',
+    'outstanding',
+    'superior',
+    'recommend',
+    'impressive',
+    'brilliant',
+    'exceptional',
+    'remarkable',
+    'reliable',
+    'efficient',
+    'powerful',
+    'intuitive',
+    'seamless',
+    'innovative',
   ];
-  
+
   const negativeWords = [
-    'bad', 'poor', 'terrible', 'awful', 'worst', 'hate', 'disappointed',
-    'frustrating', 'annoying', 'difficult', 'complicated', 'expensive',
-    'slow', 'buggy', 'broken', 'useless', 'waste', 'avoid', 'problem',
-    'issue', 'lacks', 'missing', 'inferior', 'outdated'
+    'bad',
+    'poor',
+    'terrible',
+    'awful',
+    'worst',
+    'hate',
+    'disappointed',
+    'frustrating',
+    'annoying',
+    'difficult',
+    'complicated',
+    'expensive',
+    'slow',
+    'buggy',
+    'broken',
+    'useless',
+    'waste',
+    'avoid',
+    'problem',
+    'issue',
+    'lacks',
+    'missing',
+    'inferior',
+    'outdated',
   ];
-  
+
   let positiveCount = 0;
   let negativeCount = 0;
   const foundKeywords: string[] = [];
-  
+
   positiveWords.forEach(word => {
     if (lowerText.includes(word)) {
       positiveCount++;
       foundKeywords.push(word);
     }
   });
-  
+
   negativeWords.forEach(word => {
     if (lowerText.includes(word)) {
       negativeCount++;
       foundKeywords.push(word);
     }
   });
-  
+
   const totalWords = positiveCount + negativeCount;
-  
+
   if (totalWords === 0) {
     return {
       sentiment: 'neutral',
       score: 0,
       confidence: 0.7,
-      keywords: []
+      keywords: [],
     };
   }
-  
+
   const score = (positiveCount - negativeCount) / totalWords;
   let sentiment: 'positive' | 'neutral' | 'negative';
-  
+
   if (score > 0.3) {
     sentiment = 'positive';
   } else if (score < -0.3) {
@@ -118,11 +157,11 @@ export function analyzeSentimentSimple(text: string): SentimentResult {
   } else {
     sentiment = 'neutral';
   }
-  
+
   return {
     sentiment,
     score: Math.max(-1, Math.min(1, score)),
     confidence: Math.min(0.9, totalWords / 10), // Higher confidence with more sentiment words
-    keywords: foundKeywords.slice(0, 5) // Return top 5 keywords
+    keywords: foundKeywords.slice(0, 5), // Return top 5 keywords
   };
 }

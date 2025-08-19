@@ -2,7 +2,13 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from '@/lib/auth/middleware';
 import { getUserOrganizations } from '@/lib/organizations';
 import { db } from '@/lib/db';
-import { brandMentions, queryExecutions, queries, projects, competitors } from '@/lib/db/schema';
+import {
+  brandMentions,
+  queryExecutions,
+  queries,
+  projects,
+  competitors,
+} from '@/lib/db/schema';
 import { eq, desc, sql, and, gte } from 'drizzle-orm';
 
 // Import new dashboard components
@@ -14,7 +20,7 @@ import { QueryPerformance } from '@/components/dashboard/query-performance';
 
 export default async function DashboardPage() {
   const session = await getServerSession();
-  
+
   if (!session) {
     redirect('/login');
   }
@@ -60,13 +66,20 @@ export default async function DashboardPage() {
   // Calculate brand health score
   const totalMentions = brandStats?.totalMentions || 0;
   const visibilityScore = Math.min(100, (totalMentions / 50) * 100); // Target 50 mentions/month
-  const sentimentScore = totalMentions > 0 ? Math.round(((brandStats.positive || 0) / totalMentions) * 100) : 50;
+  const sentimentScore =
+    totalMentions > 0
+      ? Math.round(((brandStats.positive || 0) / totalMentions) * 100)
+      : 50;
   const authorityScore = 70; // Mock data - would be calculated from mention positioning
   const growthScore = 75; // Mock data - would be calculated from trend analysis
   const competitiveScore = 65; // Mock data - would be calculated from competitor analysis
 
   const overallScore = Math.round(
-    (visibilityScore * 0.3 + sentimentScore * 0.25 + authorityScore * 0.2 + competitiveScore * 0.15 + growthScore * 0.1)
+    visibilityScore * 0.3 +
+      sentimentScore * 0.25 +
+      authorityScore * 0.2 +
+      competitiveScore * 0.15 +
+      growthScore * 0.1
   );
 
   const brandHealthData = {
@@ -120,7 +133,10 @@ export default async function DashboardPage() {
         negative: Math.floor(Math.random() * 5) + 1,
         average: Math.floor(Math.random() * 30) + 60,
       },
-      trend: (['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as 'up' | 'down' | 'stable'),
+      trend: ['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as
+        | 'up'
+        | 'down'
+        | 'stable',
       trendValue: Math.floor(Math.random() * 20) - 10,
       position: index + (index >= 1 ? 2 : 1), // Skip position 2 (our brand)
     })),
@@ -145,7 +161,10 @@ export default async function DashboardPage() {
       query: queries,
     })
     .from(brandMentions)
-    .leftJoin(queryExecutions, eq(brandMentions.queryExecutionId, queryExecutions.id))
+    .leftJoin(
+      queryExecutions,
+      eq(brandMentions.queryExecutionId, queryExecutions.id)
+    )
     .leftJoin(queries, eq(queryExecutions.queryId, queries.id))
     .where(eq(brandMentions.projectId, currentProject.id))
     .orderBy(desc(brandMentions.createdAt))
@@ -158,7 +177,8 @@ export default async function DashboardPage() {
     brandName: currentProject.brandName,
     llmModel: 'gpt-4', // Mock data - would come from metadata
     platform: mention.platform || 'OpenAI',
-    sentiment: (mention.sentiment as 'positive' | 'negative' | 'neutral') || 'neutral',
+    sentiment:
+      (mention.sentiment as 'positive' | 'negative' | 'neutral') || 'neutral',
     sentimentScore: parseFloat(mention.sentimentScore || '0.5') * 100,
     mentionType: 'direct' as const, // Mock data - would come from metadata
     position: 1, // Mock data - would come from metadata
@@ -174,7 +194,8 @@ export default async function DashboardPage() {
       type: 'opportunity' as const,
       priority: 'high' as const,
       title: 'Improve API Documentation Mentions',
-      description: 'Your API documentation is rarely mentioned in developer tool recommendations. Creating comprehensive guides could improve visibility.',
+      description:
+        'Your API documentation is rarely mentioned in developer tool recommendations. Creating comprehensive guides could improve visibility.',
       impact: 'Could increase mentions by 25-30% in developer queries',
       effort: 'medium' as const,
       category: 'content' as const,
@@ -196,7 +217,8 @@ export default async function DashboardPage() {
       type: 'threat' as const,
       priority: 'medium' as const,
       title: 'Competitor Gaining in Integration Queries',
-      description: 'A competitor is increasingly mentioned in integration-focused queries where you previously dominated.',
+      description:
+        'A competitor is increasingly mentioned in integration-focused queries where you previously dominated.',
       impact: 'Risk of losing 15% share in integration recommendations',
       effort: 'high' as const,
       category: 'competitive' as const,
@@ -217,7 +239,7 @@ export default async function DashboardPage() {
     .where(eq(queries.projectId, currentProject.id))
     .limit(10);
 
-  const queryPerformanceData = activeQueries.map((query) => ({
+  const queryPerformanceData = activeQueries.map(query => ({
     id: query.id,
     name: query.name,
     category: query.category || 'general',
@@ -226,8 +248,13 @@ export default async function DashboardPage() {
     mentionCount: Math.floor(Math.random() * 15) + 2,
     avgSentiment: Math.floor(Math.random() * 40) + 60,
     successRate: Math.floor(Math.random() * 30) + 70,
-    lastExecuted: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
-    trend: (['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as 'up' | 'down' | 'stable'),
+    lastExecuted: new Date(
+      Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000
+    ),
+    trend: ['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as
+      | 'up'
+      | 'down'
+      | 'stable',
     trendValue: Math.floor(Math.random() * 20) - 10,
     avgPosition: Math.floor(Math.random() * 3) + 1,
     competitorMentions: Math.floor(Math.random() * 10) + 3,
@@ -244,38 +271,53 @@ export default async function DashboardPage() {
             Brand Intelligence Dashboard
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl">
-            Comprehensive AI visibility insights for <span className="font-semibold text-primary">{currentProject.brandName}</span>
+            Comprehensive AI visibility insights for{' '}
+            <span className="font-semibold text-primary">
+              {currentProject.brandName}
+            </span>
           </p>
         </div>
 
         {/* Top Row - Brand Health & Competitive Intelligence */}
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="transform hover:scale-105 transition-transform duration-300">
-            <BrandHealthScore data={brandHealthData} className="h-full shadow-lg border-0" />
+            <BrandHealthScore
+              data={brandHealthData}
+              className="h-full shadow-lg border-0"
+            />
           </div>
           <div className="transform hover:scale-105 transition-transform duration-300">
-            <CompetitiveIntelligence data={competitiveData} className="h-full shadow-lg border-0" />
+            <CompetitiveIntelligence
+              data={competitiveData}
+              className="h-full shadow-lg border-0"
+            />
           </div>
         </div>
 
         {/* Second Row - Query Performance & GEO Insights */}
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="transform hover:scale-105 transition-transform duration-300">
-            <QueryPerformance 
+            <QueryPerformance
               queries={queryPerformanceData}
-              totalExecutions={queryPerformanceData.reduce((sum, q) => sum + q.executionCount, 0)}
+              totalExecutions={queryPerformanceData.reduce(
+                (sum, q) => sum + q.executionCount,
+                0
+              )}
               totalMentions={totalMentions}
               className="h-full shadow-lg border-0"
             />
           </div>
           <div className="transform hover:scale-105 transition-transform duration-300">
-            <GEOInsights insights={geoInsights} className="h-full shadow-lg border-0" />
+            <GEOInsights
+              insights={geoInsights}
+              className="h-full shadow-lg border-0"
+            />
           </div>
         </div>
 
         {/* Bottom Row - AI Mention Feed */}
         <div className="transform hover:scale-105 transition-transform duration-300">
-          <AIMentionFeed 
+          <AIMentionFeed
             mentions={aiMentionData}
             totalMentions={totalMentions}
             className="shadow-lg border-0"

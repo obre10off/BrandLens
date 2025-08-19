@@ -5,11 +5,23 @@ import { z } from 'zod';
 import { getServerSession } from '@/lib/auth/middleware';
 
 const analysisSchema = z.object({
-  description: z.string().describe('A concise description of what the company does'),
-  industry: z.string().describe('The primary industry or sector the company operates in'),
-  keyFeatures: z.array(z.string()).describe('3-5 key features or capabilities of the product/service'),
-  competitors: z.array(z.string()).describe('3-5 main competitors in the same space'),
-  icp: z.string().describe('Ideal Customer Profile - who would benefit most from this product'),
+  description: z
+    .string()
+    .describe('A concise description of what the company does'),
+  industry: z
+    .string()
+    .describe('The primary industry or sector the company operates in'),
+  keyFeatures: z
+    .array(z.string())
+    .describe('3-5 key features or capabilities of the product/service'),
+  competitors: z
+    .array(z.string())
+    .describe('3-5 main competitors in the same space'),
+  icp: z
+    .string()
+    .describe(
+      'Ideal Customer Profile - who would benefit most from this product'
+    ),
 });
 
 export async function POST(request: NextRequest) {
@@ -48,30 +60,39 @@ Focus on SaaS/tech companies and be specific but concise.
       schema: jsonSchema({
         type: 'object',
         properties: {
-          description: { 
+          description: {
             type: 'string',
-            description: 'A concise description of what the company does'
+            description: 'A concise description of what the company does',
           },
-          industry: { 
+          industry: {
             type: 'string',
-            description: 'The primary industry or sector the company operates in'
+            description:
+              'The primary industry or sector the company operates in',
           },
-          keyFeatures: { 
+          keyFeatures: {
             type: 'array',
             items: { type: 'string' },
-            description: '3-5 key features or capabilities of the product/service'
+            description:
+              '3-5 key features or capabilities of the product/service',
           },
-          competitors: { 
+          competitors: {
             type: 'array',
             items: { type: 'string' },
-            description: '3-5 main competitors in the same space'
+            description: '3-5 main competitors in the same space',
           },
-          icp: { 
+          icp: {
             type: 'string',
-            description: 'Ideal Customer Profile - who would benefit most from this product'
+            description:
+              'Ideal Customer Profile - who would benefit most from this product',
           },
         },
-        required: ['description', 'industry', 'keyFeatures', 'competitors', 'icp'],
+        required: [
+          'description',
+          'industry',
+          'keyFeatures',
+          'competitors',
+          'icp',
+        ],
       }),
       prompt,
     });
@@ -81,7 +102,7 @@ Focus on SaaS/tech companies and be specific but concise.
     return NextResponse.json(object);
   } catch (error) {
     console.error('Analysis error:', error);
-    
+
     // Fallback analysis if AI fails
     const fallbackAnalysis = {
       description: 'A modern SaaS platform helping businesses grow and succeed',
@@ -101,7 +122,7 @@ Focus on SaaS/tech companies and be specific but concise.
       ],
       icp: 'Small to medium-sized businesses looking to streamline their operations and improve efficiency',
     };
-    
+
     return NextResponse.json(fallbackAnalysis);
   }
 }

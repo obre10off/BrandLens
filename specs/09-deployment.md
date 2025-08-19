@@ -3,6 +3,7 @@
 ## Deployment Platform: Vercel
 
 ### Why Vercel?
+
 - Perfect for Next.js apps
 - Automatic deployments from Git
 - Edge functions for API routes
@@ -13,6 +14,7 @@
 ## Environment Setup
 
 ### Required Environment Variables
+
 ```bash
 # .env.local (for development)
 # .env.production (for Vercel)
@@ -50,6 +52,7 @@ VERCEL_ANALYTICS_ID=...
 ```
 
 ### Vercel Configuration
+
 ```json
 // vercel.json
 {
@@ -85,6 +88,7 @@ VERCEL_ANALYTICS_ID=...
 ## Database Setup
 
 ### Neon Database Configuration
+
 ```bash
 # 1. Create Neon project
 # 2. Get connection string
@@ -99,6 +103,7 @@ bun run db:seed
 ```
 
 ### Drizzle Configuration
+
 ```typescript
 // drizzle.config.ts
 import { defineConfig } from 'drizzle-kit';
@@ -116,6 +121,7 @@ export default defineConfig({
 ## Deployment Process
 
 ### Initial Deployment
+
 ```bash
 # 1. Install Vercel CLI
 npm i -g vercel
@@ -136,6 +142,7 @@ vercel --prod
 ```
 
 ### Automated Deployments
+
 ```yaml
 # GitHub Actions (.github/workflows/deploy.yml)
 name: Deploy to Production
@@ -149,26 +156,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
-        
+
       - name: Install dependencies
         run: bun install
-        
+
       - name: Run tests
         run: bun test
-        
+
       - name: Run migrations
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: bun run db:migrate
-        
+
       - name: Deploy to Vercel
         run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
 ```
 
 ### Pre-deployment Checklist
+
 ```typescript
 // scripts/pre-deploy.ts
 export async function preDeployChecks() {
@@ -179,15 +187,15 @@ export async function preDeployChecks() {
     checkStripeWebhook(),
     checkEmailConfig(),
   ];
-  
+
   const results = await Promise.all(checks);
   const failed = results.filter(r => !r.success);
-  
+
   if (failed.length > 0) {
     console.error('Pre-deploy checks failed:', failed);
     process.exit(1);
   }
-  
+
   console.log('✅ All pre-deploy checks passed');
 }
 ```
@@ -195,11 +203,12 @@ export async function preDeployChecks() {
 ## Production Configuration
 
 ### Security Headers
+
 ```typescript
 // src/middleware.ts
 export function middleware(request: Request) {
   const response = NextResponse.next();
-  
+
   // Security headers
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -212,12 +221,13 @@ export function middleware(request: Request) {
     'Content-Security-Policy',
     "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com; style-src 'self' 'unsafe-inline';"
   );
-  
+
   return response;
 }
 ```
 
 ### Performance Optimization
+
 ```typescript
 // next.config.ts
 const nextConfig: NextConfig = {
@@ -234,9 +244,10 @@ const nextConfig: NextConfig = {
 ```
 
 ### Error Monitoring
+
 ```typescript
 // src/app/layout.tsx
-import * as Sentry from "@sentry/nextjs";
+import * as Sentry from '@sentry/nextjs';
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -250,12 +261,14 @@ Sentry.init({
 ## Monitoring & Alerts
 
 ### Vercel Analytics
+
 ```typescript
 // Automatically enabled with Vercel deployment
 // View at: https://vercel.com/[team]/[project]/analytics
 ```
 
 ### Custom Monitoring
+
 ```typescript
 // src/lib/monitoring.ts
 export class Monitor {
@@ -268,7 +281,7 @@ export class Monitor {
       });
     }
   }
-  
+
   static async trackError(error: Error, context?: any) {
     console.error('Error:', error, context);
     Sentry.captureException(error, { extra: context });
@@ -277,6 +290,7 @@ export class Monitor {
 ```
 
 ### Health Checks
+
 ```typescript
 // src/app/api/health/route.ts
 export async function GET() {
@@ -285,9 +299,9 @@ export async function GET() {
     redis: await checkRedis(),
     stripe: await checkStripe(),
   };
-  
+
   const healthy = Object.values(checks).every(c => c.status === 'ok');
-  
+
   return Response.json(
     {
       status: healthy ? 'healthy' : 'unhealthy',
@@ -302,6 +316,7 @@ export async function GET() {
 ## Scaling Considerations
 
 ### Edge Functions
+
 ```typescript
 // Use edge runtime for lightweight endpoints
 export const runtime = 'edge';
@@ -313,6 +328,7 @@ export async function GET(request: Request) {
 ```
 
 ### Caching Strategy
+
 ```typescript
 // Aggressive caching for static content
 export const revalidate = 3600; // 1 hour
@@ -327,28 +343,31 @@ await redis.set(cacheKey, data, { ex: 300 }); // 5 minutes
 ```
 
 ### Database Connection Pooling
+
 ```typescript
 // Neon automatically handles connection pooling
 // Use the pooled connection string for serverless
-const db = drizzle(
-  new Pool({ connectionString: process.env.DATABASE_URL }),
-  { schema }
-);
+const db = drizzle(new Pool({ connectionString: process.env.DATABASE_URL }), {
+  schema,
+});
 ```
 
 ## Backup & Disaster Recovery
 
 ### Database Backups
+
 - Neon provides automatic daily backups
 - Enable point-in-time recovery
 - Test restore process monthly
 
 ### Code Backups
+
 - Git repository (GitHub)
 - Vercel stores deployment history
 - Can rollback instantly
 
 ### Data Export
+
 ```typescript
 // Allow users to export their data
 export async function exportUserData(userId: string) {
@@ -363,7 +382,7 @@ export async function exportUserData(userId: string) {
       },
     },
   });
-  
+
   return {
     format: 'json',
     data,
@@ -375,8 +394,9 @@ export async function exportUserData(userId: string) {
 ## Launch Day Checklist
 
 ### Technical
+
 - [ ] All environment variables set
-- [ ] Database migrated and seeded  
+- [ ] Database migrated and seeded
 - [ ] Stripe webhooks configured
 - [ ] Email sending tested
 - [ ] SSL certificate active
@@ -385,6 +405,7 @@ export async function exportUserData(userId: string) {
 - [ ] Health endpoint responding
 
 ### Business
+
 - [ ] Terms of Service published
 - [ ] Privacy Policy published
 - [ ] Support email configured
@@ -392,6 +413,7 @@ export async function exportUserData(userId: string) {
 - [ ] FAQ page created
 
 ### Marketing
+
 - [ ] Social media accounts ready
 - [ ] Product Hunt draft prepared
 - [ ] Launch email drafted
@@ -400,6 +422,7 @@ export async function exportUserData(userId: string) {
 ## Post-Launch Monitoring
 
 ### First 24 Hours
+
 - Monitor error rates closely
 - Check conversion funnel
 - Respond to support quickly
@@ -407,6 +430,7 @@ export async function exportUserData(userId: string) {
 - Track signup sources
 
 ### First Week
+
 - Daily error report review
 - Performance optimization
 - User feedback collection
@@ -414,6 +438,7 @@ export async function exportUserData(userId: string) {
 - Churn analysis
 
 ### Ongoing
+
 - Weekly performance review
 - Monthly security updates
 - Quarterly dependency updates

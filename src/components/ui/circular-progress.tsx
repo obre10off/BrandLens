@@ -20,7 +20,7 @@ export function CircularProgress({
   className,
   children,
   showValue = true,
-  color = 'primary'
+  color = 'primary',
 }: CircularProgressProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -41,19 +41,26 @@ export function CircularProgress({
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-amber-600';
-    if (score >= 40) return 'text-orange-600';
+    if (score >= 80) {
+      return 'text-green-600';
+    }
+    if (score >= 60) {
+      return 'text-amber-600';
+    }
+    if (score >= 40) {
+      return 'text-orange-600';
+    }
     return 'text-red-600';
   };
 
   return (
-    <div className={cn('relative inline-flex items-center justify-center', className)}>
-      <svg
-        width={size}
-        height={size}
-        className="transform -rotate-90"
-      >
+    <div
+      className={cn(
+        'relative inline-flex items-center justify-center',
+        className
+      )}
+    >
+      <svg width={size} height={size} className="transform -rotate-90">
         {/* Background circle */}
         <circle
           cx={size / 2}
@@ -78,19 +85,18 @@ export function CircularProgress({
           className="transition-all duration-300 ease-in-out"
         />
       </svg>
-      
+
       {/* Center content */}
       <div className="absolute inset-0 flex items-center justify-center">
-        {children || (
-          showValue && (
+        {children ||
+          (showValue && (
             <div className="text-center">
               <div className={cn('text-2xl font-bold', getScoreColor(value))}>
                 {Math.round(value)}
               </div>
               <div className="text-xs text-gray-500 -mt-1">Score</div>
             </div>
-          )
-        )}
+          ))}
       </div>
     </div>
   );

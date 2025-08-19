@@ -1,11 +1,13 @@
 # BrandLens Database Schema
 
 ## Overview
+
 Using PostgreSQL (Neon) with Drizzle ORM for type-safe database operations. Schema designed for multi-tenancy, efficient time-series queries, and scalability.
 
 ## Core Tables
 
 ### users
+
 ```typescript
 export const users = pgTable('users', {
   id: text('id').primaryKey(), // From Better Auth
@@ -17,6 +19,7 @@ export const users = pgTable('users', {
 ```
 
 ### organizations
+
 ```typescript
 export const organizations = pgTable('organizations', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -29,6 +32,7 @@ export const organizations = pgTable('organizations', {
 ```
 
 ### organization_members
+
 ```typescript
 export const organizationMembers = pgTable('organization_members', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -40,6 +44,7 @@ export const organizationMembers = pgTable('organization_members', {
 ```
 
 ### projects
+
 ```typescript
 export const projects = pgTable('projects', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -53,6 +58,7 @@ export const projects = pgTable('projects', {
 ```
 
 ### competitors
+
 ```typescript
 export const competitors = pgTable('competitors', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -65,6 +71,7 @@ export const competitors = pgTable('competitors', {
 ```
 
 ### queries
+
 ```typescript
 export const queries = pgTable('queries', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -77,6 +84,7 @@ export const queries = pgTable('queries', {
 ```
 
 ### project_queries
+
 ```typescript
 export const projectQueries = pgTable('project_queries', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -88,6 +96,7 @@ export const projectQueries = pgTable('project_queries', {
 ```
 
 ### llm_responses
+
 ```typescript
 export const llmResponses = pgTable('llm_responses', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -101,11 +110,13 @@ export const llmResponses = pgTable('llm_responses', {
 });
 
 // Index for time-series queries
-export const llmResponsesCreatedAtIdx = index('llm_responses_created_at_idx')
-  .on(llmResponses.createdAt);
+export const llmResponsesCreatedAtIdx = index(
+  'llm_responses_created_at_idx'
+).on(llmResponses.createdAt);
 ```
 
 ### brand_mentions
+
 ```typescript
 export const brandMentions = pgTable('brand_mentions', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -120,11 +131,14 @@ export const brandMentions = pgTable('brand_mentions', {
 });
 
 // Composite index for efficient queries
-export const brandMentionsIdx = index('brand_mentions_brand_created_idx')
-  .on(brandMentions.brandName, brandMentions.createdAt);
+export const brandMentionsIdx = index('brand_mentions_brand_created_idx').on(
+  brandMentions.brandName,
+  brandMentions.createdAt
+);
 ```
 
 ### subscriptions
+
 ```typescript
 export const subscriptions = pgTable('subscriptions', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -142,6 +156,7 @@ export const subscriptions = pgTable('subscriptions', {
 ```
 
 ### usage_tracking
+
 ```typescript
 export const usageTracking = pgTable('usage_tracking', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -155,8 +170,9 @@ export const usageTracking = pgTable('usage_tracking', {
 });
 
 // Unique constraint for org + period
-export const usageTrackingUnique = uniqueIndex('usage_tracking_org_period_idx')
-  .on(usageTracking.organizationId, usageTracking.period);
+export const usageTrackingUnique = uniqueIndex(
+  'usage_tracking_org_period_idx'
+).on(usageTracking.organizationId, usageTracking.period);
 ```
 
 ## Relationships
@@ -179,18 +195,22 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
   responses: many(llmResponses),
 }));
 
-export const llmResponsesRelations = relations(llmResponses, ({ one, many }) => ({
-  project: one(projects, {
-    fields: [llmResponses.projectId],
-    references: [projects.id],
-  }),
-  mentions: many(brandMentions),
-}));
+export const llmResponsesRelations = relations(
+  llmResponses,
+  ({ one, many }) => ({
+    project: one(projects, {
+      fields: [llmResponses.projectId],
+      references: [projects.id],
+    }),
+    mentions: many(brandMentions),
+  })
+);
 ```
 
 ## Migration Strategy
 
 ### Initial Migration
+
 ```sql
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -201,13 +221,14 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 ```
 
 ### Data Seeding
+
 ```typescript
 // Seed 50 pre-built queries
 const seedQueries = [
   {
     category: 'crm',
     template: 'best CRM software for {industry}',
-    variables: { industries: ['startups', 'sales teams', 'small business'] }
+    variables: { industries: ['startups', 'sales teams', 'small business'] },
   },
   // ... more queries
 ];
@@ -216,16 +237,19 @@ const seedQueries = [
 ## Performance Optimizations
 
 ### Indexes
+
 - Time-based queries on `created_at` columns
 - Brand name lookups for mention analysis
 - Organization + period for usage tracking
 - Response ID for mention aggregation
 
 ### Partitioning (Future)
+
 - Partition `llm_responses` by month for better query performance
 - Archive old data to cold storage after 90 days
 
 ### Query Patterns
+
 ```typescript
 // Efficient mention counting
 const mentionCounts = await db
@@ -256,18 +280,20 @@ const timeSeriesData = await db
 ## Data Retention
 
 ### Policy
+
 - Raw responses: 90 days
 - Aggregated metrics: Indefinite
 - User data: Until account deletion
 - Archived data: S3 cold storage
 
 ### Implementation
+
 ```typescript
 // Scheduled job to clean old data
 async function cleanOldData() {
   const ninetyDaysAgo = new Date();
   ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-  
+
   await db
     .delete(llmResponses)
     .where(lt(llmResponses.createdAt, ninetyDaysAgo));

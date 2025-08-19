@@ -4,7 +4,10 @@ import { logger } from './logger';
 
 interface RateLimitOptions {
   keyGenerator?: (req: NextRequest) => string;
-  onLimitReached?: (req: NextRequest, result: unknown) => NextResponse | Promise<NextResponse>;
+  onLimitReached?: (
+    req: NextRequest,
+    result: unknown
+  ) => NextResponse | Promise<NextResponse>;
   skipOnError?: boolean;
 }
 
@@ -26,9 +29,8 @@ export function withRateLimit(
     try {
       // Generate rate limit key
       const defaultKey = req.ip || 'anonymous';
-      const identifier = config.identifier || 
-                        options.keyGenerator?.(req) || 
-                        defaultKey;
+      const identifier =
+        config.identifier || options.keyGenerator?.(req) || defaultKey;
 
       // Check rate limit
       const result = await EnhancedRateLimiter.checkLimit({
@@ -39,16 +41,19 @@ export function withRateLimit(
       });
 
       // Add rate limit headers
-      const response = result.allowed ? 
-                      await handler() : 
-                      options.onLimitReached?.(req, result) || 
-                      createRateLimitResponse(result);
+      const response = result.allowed
+        ? await handler()
+        : options.onLimitReached?.(req, result) ||
+          createRateLimitResponse(result);
 
       // Add rate limit headers to response
       response.headers.set('X-RateLimit-Limit', result.limit.toString());
-      response.headers.set('X-RateLimit-Remaining', result.remaining.toString());
+      response.headers.set(
+        'X-RateLimit-Remaining',
+        result.remaining.toString()
+      );
       response.headers.set('X-RateLimit-Reset', result.reset.toString());
-      
+
       if (result.retryAfter) {
         response.headers.set('Retry-After', result.retryAfter.toString());
       }
@@ -66,12 +71,15 @@ export function withRateLimit(
       }
 
       return response;
-
     } catch (error) {
-      logger.error('Rate limit middleware error', {
-        endpoint: req.nextUrl.pathname,
-        identifier: config.identifier,
-      }, error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        'Rate limit middleware error',
+        {
+          endpoint: req.nextUrl.pathname,
+          identifier: config.identifier,
+        },
+        error instanceof Error ? error : new Error(String(error))
+      );
 
       // On error, either allow or deny based on configuration
       if (options.skipOnError !== false) {
@@ -95,7 +103,10 @@ export function withUserRateLimit(
 ) {
   return async function userRateLimitMiddleware(
     req: NextRequest,
-    handler: (userId: string, orgId: string) => Promise<NextResponse> | NextResponse,
+    handler: (
+      userId: string,
+      orgId: string
+    ) => Promise<NextResponse> | NextResponse,
     userId: string,
     organizationId: string
   ): Promise<NextResponse> {
@@ -107,14 +118,15 @@ export function withUserRateLimit(
       );
 
       if (!result.allowed) {
-        const response = options.onLimitReached?.(req, result) || 
-                        createRateLimitResponse(result, 'User rate limit exceeded');
+        const response =
+          options.onLimitReached?.(req, result) ||
+          createRateLimitResponse(result, 'User rate limit exceeded');
 
         // Add headers
         response.headers.set('X-RateLimit-Limit', result.limit.toString());
         response.headers.set('X-RateLimit-Remaining', '0');
         response.headers.set('X-RateLimit-Reset', result.reset.toString());
-        
+
         if (result.retryAfter) {
           response.headers.set('Retry-After', result.retryAfter.toString());
         }
@@ -130,20 +142,26 @@ export function withUserRateLimit(
       }
 
       const response = await handler(userId, organizationId);
-      
+
       // Add rate limit headers
       response.headers.set('X-RateLimit-Limit', result.limit.toString());
-      response.headers.set('X-RateLimit-Remaining', result.remaining.toString());
+      response.headers.set(
+        'X-RateLimit-Remaining',
+        result.remaining.toString()
+      );
       response.headers.set('X-RateLimit-Reset', result.reset.toString());
 
       return response;
-
     } catch (error) {
-      logger.error('User rate limit middleware error', {
-        userId,
-        organizationId,
-        endpoint: req.nextUrl.pathname,
-      }, error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        'User rate limit middleware error',
+        {
+          userId,
+          organizationId,
+          endpoint: req.nextUrl.pathname,
+        },
+        error instanceof Error ? error : new Error(String(error))
+      );
 
       if (options.skipOnError !== false) {
         return handler(userId, organizationId);
@@ -169,8 +187,9 @@ export function withEndpointRateLimit(
     req: NextRequest,
     handler: () => Promise<NextResponse> | NextResponse
   ): Promise<NextResponse> {
-    const identifier = req.ip || req.headers.get('x-forwarded-for') || 'anonymous';
-    
+    const identifier =
+      req.ip || req.headers.get('x-forwarded-for') || 'anonymous';
+
     const result = await EnhancedRateLimiter.checkEndpointLimit(
       endpoint,
       identifier,
@@ -178,13 +197,14 @@ export function withEndpointRateLimit(
     );
 
     if (!result.allowed) {
-      const response = options.onLimitReached?.(req, result) || 
-                      createRateLimitResponse(result, `${endpoint} rate limit exceeded`);
+      const response =
+        options.onLimitReached?.(req, result) ||
+        createRateLimitResponse(result, `${endpoint} rate limit exceeded`);
 
       response.headers.set('X-RateLimit-Limit', result.limit.toString());
       response.headers.set('X-RateLimit-Remaining', '0');
       response.headers.set('X-RateLimit-Reset', result.reset.toString());
-      
+
       if (result.retryAfter) {
         response.headers.set('Retry-After', result.retryAfter.toString());
       }
@@ -200,7 +220,7 @@ export function withEndpointRateLimit(
     }
 
     const response = await handler();
-    
+
     // Add rate limit headers
     response.headers.set('X-RateLimit-Limit', result.limit.toString());
     response.headers.set('X-RateLimit-Remaining', result.remaining.toString());
@@ -210,7 +230,10 @@ export function withEndpointRateLimit(
   };
 }
 
-function createRateLimitResponse(result: { limit: number; reset: number; retryAfter?: number }, message = 'Rate limit exceeded'): NextResponse {
+function createRateLimitResponse(
+  result: { limit: number; reset: number; retryAfter?: number },
+  message = 'Rate limit exceeded'
+): NextResponse {
   return NextResponse.json(
     {
       error: message,

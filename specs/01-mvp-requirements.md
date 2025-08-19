@@ -1,28 +1,33 @@
 # BrandLens MVP Requirements
 
 ## Core Value Proposition
+
 BrandLens provides affordable Generative Engine Optimization (GEO) monitoring for SMB SaaS companies. We track how AI platforms mention your brand compared to competitors, offering the same insights as enterprise tools at 60% less cost.
 
 ## MVP Features
 
 ### 1. Brand Mention Tracking
+
 - **Platforms**: ChatGPT and Claude (2 LLMs only for MVP)
 - **Query Types**: 50 pre-built SaaS-specific queries
 - **Refresh Rate**: Weekly for all plans initially
 - **Data Points**: Brand mentions, sentiment, context
 
 ### 2. Competitor Analysis
+
 - **Competitors**: Track up to 5 competitors
 - **Metrics**: Share of voice, mention frequency, sentiment comparison
 - **Visualization**: Simple bar charts and trend lines
 
 ### 3. Dashboard
+
 - **Overview**: Key metrics at a glance
 - **Mention Feed**: Recent AI responses mentioning your brand
 - **Trends**: 30-day historical data
 - **Export**: CSV download of raw data
 
 ### 4. Email Reports
+
 - **Frequency**: Weekly summary emails
 - **Content**: Top mentions, competitor changes, actionable insights
 - **Customization**: Choose which metrics to include
@@ -54,18 +59,21 @@ BrandLens provides affordable Generative Engine Optimization (GEO) monitoring fo
 ## Success Criteria for Launch
 
 ### Technical
+
 - [ ] Authentication works smoothly
 - [ ] LLM queries process without errors
 - [ ] Dashboard loads in <2 seconds
 - [ ] Email reports deliver reliably
 
 ### Business
+
 - [ ] 50+ signups in first week
 - [ ] 10+ paid conversions in first month
 - [ ] <5% churn in first 30 days
 - [ ] NPS score >40
 
 ### User Experience
+
 - [ ] Onboarding completion rate >80%
 - [ ] Time to first insight <5 minutes
 - [ ] Support tickets <5% of active users
@@ -99,18 +107,21 @@ BrandLens provides affordable Generative Engine Optimization (GEO) monitoring fo
 ## Pricing Tiers (MVP)
 
 ### Starter - $39/month
+
 - 1 project
 - 50 tracked queries
 - 2 competitors
 - Weekly updates
 
 ### Growth - $79/month
+
 - 2 projects
 - 150 tracked queries
 - 5 competitors
 - Weekly updates
 
 ### Scale - $149/month
+
 - 5 projects
 - 350 tracked queries
 - 10 competitors

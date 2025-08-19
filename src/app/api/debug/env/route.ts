@@ -17,9 +17,12 @@ export async function GET() {
       message: 'Environment variables check',
     });
   } catch (error) {
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to check environment',
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to check environment',
+      },
+      { status: 500 }
+    );
   }
 }

@@ -1,7 +1,10 @@
 import { Redis } from '@upstash/redis';
 import { logger } from './logger';
 
-if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+if (
+  !process.env.UPSTASH_REDIS_REST_URL ||
+  !process.env.UPSTASH_REDIS_REST_TOKEN
+) {
   throw new Error('Missing Upstash Redis environment variables');
 }
 
@@ -37,7 +40,11 @@ export class RedisCache {
       const data = await redis.get(key);
       return data as T;
     } catch (error) {
-      logger.error('Redis get operation failed', { key }, error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        'Redis get operation failed',
+        { key },
+        error instanceof Error ? error : new Error(String(error))
+      );
       return null;
     }
   }
@@ -55,7 +62,11 @@ export class RedisCache {
       }
       return true;
     } catch (error) {
-      logger.error('Redis set operation failed', { key, ttl }, error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        'Redis set operation failed',
+        { key, ttl },
+        error instanceof Error ? error : new Error(String(error))
+      );
       return false;
     }
   }
@@ -65,7 +76,11 @@ export class RedisCache {
       await redis.del(key);
       return true;
     } catch (error) {
-      logger.error('Redis delete operation failed', { key }, error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        'Redis delete operation failed',
+        { key },
+        error instanceof Error ? error : new Error(String(error))
+      );
       return false;
     }
   }
@@ -75,7 +90,11 @@ export class RedisCache {
       const result = await redis.exists(key);
       return result === 1;
     } catch (error) {
-      logger.error('Redis exists operation failed', { key }, error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        'Redis exists operation failed',
+        { key },
+        error instanceof Error ? error : new Error(String(error))
+      );
       return false;
     }
   }
@@ -90,7 +109,11 @@ export class RedisCache {
       }
       return keys.length;
     } catch (error) {
-      logger.error('Redis pattern invalidation failed', { pattern }, error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        'Redis pattern invalidation failed',
+        { pattern },
+        error instanceof Error ? error : new Error(String(error))
+      );
       return 0;
     }
   }
@@ -132,7 +155,11 @@ export class RateLimiter {
         reset: Math.floor((now + window * 1000) / 1000),
       };
     } catch (error) {
-      logger.error('Rate limiter operation failed', { identifier, limit, window }, error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        'Rate limiter operation failed',
+        { identifier, limit, window },
+        error instanceof Error ? error : new Error(String(error))
+      );
       // Allow request on error to avoid blocking users
       return {
         allowed: true,

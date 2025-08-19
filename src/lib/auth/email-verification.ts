@@ -11,9 +11,14 @@ interface EmailUser {
   name?: string | null;
 }
 
-export async function sendVerificationEmail(
-  { user, url }: { user: EmailUser; url: string; token: string }
-) {
+export async function sendVerificationEmail({
+  user,
+  url,
+}: {
+  user: EmailUser;
+  url: string;
+  token: string;
+}) {
   const html = `
     <!DOCTYPE html>
     <html>
@@ -63,9 +68,14 @@ export async function sendVerificationEmail(
   }
 }
 
-export async function sendResetPasswordEmail(
-  { user, url }: { user: EmailUser; url: string; token: string }
-) {
+export async function sendResetPasswordEmail({
+  user,
+  url,
+}: {
+  user: EmailUser;
+  url: string;
+  token: string;
+}) {
   const html = `
     <!DOCTYPE html>
     <html>

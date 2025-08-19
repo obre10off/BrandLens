@@ -3,6 +3,7 @@
 ## Core Technologies
 
 ### Frontend
+
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS + shadcn/ui
@@ -11,6 +12,7 @@
 - **Forms**: React Hook Form + Zod
 
 ### Backend
+
 - **Runtime**: Bun
 - **API**: Next.js API Routes
 - **Database**: PostgreSQL (Neon DB)
@@ -19,11 +21,13 @@
 - **Cache**: Redis (Upstash)
 
 ### Authentication & Payments
+
 - **Auth**: Better Auth
 - **Payments**: Stripe Checkout
 - **Email**: Resend
 
 ### Infrastructure
+
 - **Hosting**: Vercel
 - **Database**: Neon (Postgres)
 - **Redis**: Upstash
@@ -31,6 +35,7 @@
 - **CDN**: Vercel Edge Network
 
 ### External APIs
+
 - **OpenAI**: ChatGPT queries
 - **Anthropic**: Claude queries
 - **Stripe**: Payment processing
@@ -74,30 +79,35 @@
 ## Key Design Decisions
 
 ### Why Next.js App Router?
+
 - Server Components for better performance
 - Built-in API routes
 - Excellent Vercel integration
 - Great DX with hot reload
 
 ### Why Neon DB?
+
 - Serverless Postgres
 - Automatic scaling
 - Connection pooling built-in
 - Great free tier
 
 ### Why Drizzle ORM?
+
 - Type-safe queries
 - Lightweight (vs Prisma)
 - Great migration tools
 - Works well with edge runtime
 
 ### Why Better Auth?
+
 - Modern auth solution
 - Built for Next.js
 - Supports passwordless
 - Easy social logins
 
 ### Why Upstash Redis?
+
 - Serverless Redis
 - Pay-per-request pricing
 - Global replication
@@ -106,6 +116,7 @@
 ## Development Workflow
 
 ### Local Development
+
 ```bash
 # Install dependencies
 bun install
@@ -121,6 +132,7 @@ bun run dev
 ```
 
 ### Database Management
+
 ```bash
 # Generate migrations
 bun run db:generate
@@ -133,6 +145,7 @@ bun run db:studio
 ```
 
 ### Testing
+
 ```bash
 # Run unit tests
 bun test
@@ -177,18 +190,21 @@ SENTRY_DSN=
 ## Security Considerations
 
 ### API Security
+
 - Rate limiting on all endpoints
 - API key rotation schedule
 - Request signing for webhooks
 - CORS properly configured
 
 ### Data Security
+
 - All passwords hashed with bcrypt
 - API keys encrypted at rest
 - PII data minimized
 - GDPR compliance built-in
 
 ### Infrastructure Security
+
 - Environment variables in Vercel
 - Database connection via SSL
 - No secrets in code
@@ -197,16 +213,19 @@ SENTRY_DSN=
 ## Performance Targets
 
 ### Frontend
+
 - First Contentful Paint: <1.5s
 - Time to Interactive: <3s
 - Lighthouse Score: >90
 
 ### Backend
+
 - API response time: <200ms (p95)
 - Database queries: <50ms (p95)
 - LLM processing: <30s per query
 
 ### Scalability
+
 - Handle 10,000 queries/day
 - Support 1,000 concurrent users
 - 99.9% uptime target

@@ -20,9 +20,11 @@ export function TrendChart({
   height = 40,
   color = '#2563EB',
   fillOpacity = 0.1,
-  strokeWidth = 2
+  strokeWidth = 2,
 }: TrendChartProps) {
-  if (data.length < 2) return null;
+  if (data.length < 2) {
+    return null;
+  }
 
   const maxValue = Math.max(...data);
   const minValue = Math.min(...data);

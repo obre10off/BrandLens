@@ -25,8 +25,12 @@ class Logger {
   private formatLog(entry: LogEntry): string {
     if (this.isDevelopment) {
       // Pretty format for development
-      const contextStr = entry.context ? ` ${JSON.stringify(entry.context, null, 2)}` : '';
-      const errorStr = entry.error ? `\nError: ${entry.error.message}\nStack: ${entry.error.stack}` : '';
+      const contextStr = entry.context
+        ? ` ${JSON.stringify(entry.context, null, 2)}`
+        : '';
+      const errorStr = entry.error
+        ? `\nError: ${entry.error.message}\nStack: ${entry.error.stack}`
+        : '';
       return `[${entry.level.toUpperCase()}] ${entry.message}${contextStr}${errorStr}`;
     }
 
@@ -78,7 +82,12 @@ class Logger {
   }
 
   // Helper methods for common patterns
-  queryExecution(message: string, queryId: string, executionId?: string, error?: Error): void {
+  queryExecution(
+    message: string,
+    queryId: string,
+    executionId?: string,
+    error?: Error
+  ): void {
     this.info(message, { queryId, executionId }, error);
   }
 

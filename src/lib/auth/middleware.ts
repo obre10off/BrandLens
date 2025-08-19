@@ -3,29 +3,29 @@ import { auth } from './index';
 
 export async function authMiddleware(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers });
-  
+
   // Protected routes
   const protectedPaths = ['/dashboard', '/settings', '/projects'];
-  const isProtectedPath = protectedPaths.some(path => 
+  const isProtectedPath = protectedPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
   );
-  
+
   if (isProtectedPath && !session) {
     const url = new URL('/login', request.url);
     url.searchParams.set('redirect', request.nextUrl.pathname);
     return NextResponse.redirect(url);
   }
-  
+
   // Redirect authenticated users away from auth pages
   const authPaths = ['/login', '/signup', '/forgot-password'];
-  const isAuthPath = authPaths.some(path => 
+  const isAuthPath = authPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
   );
-  
+
   if (isAuthPath && session) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
-  
+
   return NextResponse.next();
 }
 
@@ -39,10 +39,10 @@ export async function getServerSession() {
 // Helper to require authentication
 export async function requireAuth() {
   const session = await getServerSession();
-  
+
   if (!session) {
     throw new Error('Unauthorized');
   }
-  
+
   return session;
 }

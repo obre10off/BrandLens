@@ -22,16 +22,19 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const validation = createCompetitorSchema.safeParse(body);
-    
+
     if (!validation.success) {
-      return NextResponse.json({ error: validation.error.errors }, { status: 400 });
+      return NextResponse.json(
+        { error: validation.error.errors },
+        { status: 400 }
+      );
     }
 
     const { projectId, name, domain, description } = validation.data;
 
     // Verify user has access to the project
     const organizations = await getUserOrganizations(session.user.id);
-    const hasAccess = organizations.some(org => 
+    const hasAccess = organizations.some(org =>
       org.projects?.some(p => p.id === projectId)
     );
 
@@ -40,9 +43,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Check competitor limits based on plan
-    const org = organizations.find(o => o.projects?.some(p => p.id === projectId));
+    const org = organizations.find(o =>
+      o.projects?.some(p => p.id === projectId)
+    );
     if (!org) {
-      return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Organization not found' },
+        { status: 404 }
+      );
     }
 
     // Get current competitor count
@@ -66,10 +74,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (competitorLimit !== -1 && existingCompetitors.length >= competitorLimit) {
-      return NextResponse.json({ 
-        error: `Competitor limit reached. Your plan allows ${competitorLimit} competitors.` 
-      }, { status: 403 });
+    if (
+      competitorLimit !== -1 &&
+      existingCompetitors.length >= competitorLimit
+    ) {
+      return NextResponse.json(
+        {
+          error: `Competitor limit reached. Your plan allows ${competitorLimit} competitors.`,
+        },
+        { status: 403 }
+      );
     }
 
     // Create the competitor
@@ -104,7 +118,10 @@ export async function DELETE(req: NextRequest) {
     const competitorId = searchParams.get('id');
 
     if (!competitorId) {
-      return NextResponse.json({ error: 'Competitor ID required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Competitor ID required' },
+        { status: 400 }
+      );
     }
 
     // Get the competitor to check project access
@@ -115,12 +132,15 @@ export async function DELETE(req: NextRequest) {
       .limit(1);
 
     if (!competitor) {
-      return NextResponse.json({ error: 'Competitor not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Competitor not found' },
+        { status: 404 }
+      );
     }
 
     // Verify user has access to the project
     const organizations = await getUserOrganizations(session.user.id);
-    const hasAccess = organizations.some(org => 
+    const hasAccess = organizations.some(org =>
       org.projects?.some(p => p.id === competitor.projectId)
     );
 
@@ -129,9 +149,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     // Delete the competitor
-    await db
-      .delete(competitors)
-      .where(eq(competitors.id, competitorId));
+    await db.delete(competitors).where(eq(competitors.id, competitorId));
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -154,7 +172,10 @@ export async function PATCH(req: NextRequest) {
     const { id, name, domain, description } = body;
 
     if (!id) {
-      return NextResponse.json({ error: 'Competitor ID required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Competitor ID required' },
+        { status: 400 }
+      );
     }
 
     // Get the competitor to check project access
@@ -165,12 +186,15 @@ export async function PATCH(req: NextRequest) {
       .limit(1);
 
     if (!competitor) {
-      return NextResponse.json({ error: 'Competitor not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Competitor not found' },
+        { status: 404 }
+      );
     }
 
     // Verify user has access to the project
     const organizations = await getUserOrganizations(session.user.id);
-    const hasAccess = organizations.some(org => 
+    const hasAccess = organizations.some(org =>
       org.projects?.some(p => p.id === competitor.projectId)
     );
 
@@ -184,7 +208,8 @@ export async function PATCH(req: NextRequest) {
       .set({
         name: name || competitor.name,
         domain: domain !== undefined ? domain : competitor.domain,
-        description: description !== undefined ? description : competitor.description,
+        description:
+          description !== undefined ? description : competitor.description,
       })
       .where(eq(competitors.id, id))
       .returning();

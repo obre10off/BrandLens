@@ -5,7 +5,13 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { toast } from 'sonner';
 import { authClient } from '@/lib/auth/client';
 import { BarChart3, Loader2, ArrowLeft } from 'lucide-react';
@@ -51,15 +57,17 @@ export default function ForgotPasswordPage() {
 
           <Card>
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center">Check your email</CardTitle>
+              <CardTitle className="text-2xl text-center">
+                Check your email
+              </CardTitle>
               <CardDescription className="text-center">
                 We&apos;ve sent password reset instructions to {email}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground text-center">
-                If you don&apos;t see the email, check your spam folder. 
-                The link will expire in 1 hour.
+                If you don&apos;t see the email, check your spam folder. The
+                link will expire in 1 hour.
               </p>
               <div className="flex flex-col gap-2">
                 <Button
@@ -98,7 +106,9 @@ export default function ForgotPasswordPage() {
 
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Forgot password?</CardTitle>
+            <CardTitle className="text-2xl text-center">
+              Forgot password?
+            </CardTitle>
             <CardDescription className="text-center">
               Enter your email and we&apos;ll send you a reset link
             </CardDescription>
@@ -112,7 +122,7 @@ export default function ForgotPasswordPage() {
                   type="email"
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
                   required
                   disabled={loading}
                 />

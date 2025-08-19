@@ -15,7 +15,9 @@ export function OnboardingTour() {
   const driverRef = useRef<any>(null);
 
   useEffect(() => {
-    if (!shouldShowTour) return;
+    if (!shouldShowTour) {
+      return;
+    }
 
     // Define tour steps for each page
     const tourPages = [
@@ -26,7 +28,8 @@ export function OnboardingTour() {
             element: '.sidebar',
             popover: {
               title: 'Welcome to BrandLens! 🎉',
-              description: 'This is your navigation sidebar. All features are accessible from here.',
+              description:
+                'This is your navigation sidebar. All features are accessible from here.',
               side: 'right',
               align: 'start',
             },
@@ -35,7 +38,8 @@ export function OnboardingTour() {
             element: '[href="/dashboard"]',
             popover: {
               title: 'Dashboard Overview',
-              description: 'Your main dashboard shows key metrics and recent activity.',
+              description:
+                'Your main dashboard shows key metrics and recent activity.',
               side: 'right',
             },
           },
@@ -43,7 +47,8 @@ export function OnboardingTour() {
             element: '.quick-stats',
             popover: {
               title: 'Quick Stats',
-              description: 'Get a quick overview of your brand performance at a glance.',
+              description:
+                'Get a quick overview of your brand performance at a glance.',
               side: 'bottom',
             },
           },
@@ -51,7 +56,8 @@ export function OnboardingTour() {
             element: '.recent-activity',
             popover: {
               title: 'Recent Mentions',
-              description: 'See the latest mentions of your brand across AI platforms.',
+              description:
+                'See the latest mentions of your brand across AI platforms.',
               side: 'top',
             },
           },
@@ -64,7 +70,8 @@ export function OnboardingTour() {
             element: '[href="/dashboard/brand-book"]',
             popover: {
               title: 'Brand Book',
-              description: 'Manage your brand assets, guidelines, and key messaging here.',
+              description:
+                'Manage your brand assets, guidelines, and key messaging here.',
               side: 'right',
             },
           },
@@ -77,7 +84,8 @@ export function OnboardingTour() {
             element: '[href="/dashboard/competitors"]',
             popover: {
               title: 'Competitor Tracking',
-              description: 'Add and monitor up to 5 competitors to see how you compare.',
+              description:
+                'Add and monitor up to 5 competitors to see how you compare.',
               side: 'right',
             },
           },
@@ -90,7 +98,8 @@ export function OnboardingTour() {
             element: '[href="/dashboard/queries"]',
             popover: {
               title: 'Brand Queries',
-              description: 'Manage and execute queries to monitor your brand across AI platforms.',
+              description:
+                'Manage and execute queries to monitor your brand across AI platforms.',
               side: 'right',
             },
           },
@@ -98,7 +107,8 @@ export function OnboardingTour() {
             element: '.run-analysis',
             popover: {
               title: 'Run Analysis',
-              description: 'Execute queries to get fresh data about your brand mentions.',
+              description:
+                'Execute queries to get fresh data about your brand mentions.',
               side: 'top',
             },
           },
@@ -111,7 +121,8 @@ export function OnboardingTour() {
             element: '[href="/dashboard/responses"]',
             popover: {
               title: 'AI Responses',
-              description: 'View all responses from ChatGPT and Claude about your brand.',
+              description:
+                'View all responses from ChatGPT and Claude about your brand.',
               side: 'right',
             },
           },
@@ -137,7 +148,8 @@ export function OnboardingTour() {
             element: '[href="/dashboard/settings"]',
             popover: {
               title: 'Settings',
-              description: 'Configure your account, notifications, and preferences.',
+              description:
+                'Configure your account, notifications, and preferences.',
               side: 'right',
             },
           },
@@ -146,7 +158,9 @@ export function OnboardingTour() {
     ];
 
     // Find current page in tour
-    const currentPageIndex = tourPages.findIndex(page => page.path === pathname);
+    const currentPageIndex = tourPages.findIndex(
+      page => page.path === pathname
+    );
     if (currentPageIndex === -1) {
       // Not on a tour page, navigate to first page
       router.push('/dashboard?tour=true&tourStep=0');
@@ -168,11 +182,13 @@ export function OnboardingTour() {
 
     // Determine current step
     let currentStepIndex = parseInt(tourStep || '0');
-    
+
     // Find steps for current page
     const currentPageSteps = allSteps.filter(step => step.path === pathname);
-    const firstStepOnCurrentPage = allSteps.findIndex(step => step.path === pathname);
-    
+    const firstStepOnCurrentPage = allSteps.findIndex(
+      step => step.path === pathname
+    );
+
     // If we're on a new page, start from the first step of that page
     if (!tourStep || currentStepIndex < firstStepOnCurrentPage) {
       currentStepIndex = firstStepOnCurrentPage;
@@ -218,7 +234,10 @@ export function OnboardingTour() {
         },
       })),
       onDestroyStarted: () => {
-        if (!driverObj.hasNextStep() || confirm('Are you sure you want to skip the tour?')) {
+        if (
+          !driverObj.hasNextStep() ||
+          confirm('Are you sure you want to skip the tour?')
+        ) {
           router.push('/dashboard');
           return true;
         }
@@ -230,7 +249,8 @@ export function OnboardingTour() {
     allSteps.push({
       popover: {
         title: "You're All Set! 🚀",
-        description: 'Start by running your first analysis or adding competitors. Need help? Check the docs anytime.',
+        description:
+          'Start by running your first analysis or adding competitors. Need help? Check the docs anytime.',
         onNextClick: () => {
           router.push('/dashboard');
         },

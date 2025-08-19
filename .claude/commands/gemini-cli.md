@@ -1,6 +1,4 @@
-# My name is Obre. You should call me by my name. 
-
-
+# My name is Obre. You should call me by my name.
 
 # Using Gemini CLI for Large Codebase Analysis
 
@@ -10,7 +8,7 @@ context window. Use `gemini -p` to leverage Google Gemini's large context capaci
 ## File and Directory Inclusion Syntax
 
 Use the `@` syntax to include files and directories in your Gemini prompts. The paths should be relative to WHERE you run the
-  gemini command:
+gemini command:
 
 ### Examples:
 
@@ -30,6 +28,7 @@ Current directory and subdirectories:
 gemini -p "@./ Give me an overview of this entire project"
 
 # Or use --all_files flag:
+
 gemini --all_files -p "Analyze the project structure and dependencies"
 
 Implementation Verification Examples
@@ -61,6 +60,7 @@ gemini -p "@src/payment/ @tests/ Is the payment processing module fully tested? 
 When to Use Gemini CLI
 
 Use gemini -p when:
+
 - Analyzing entire codebases or large directories
 - Comparing multiple large files
 - Need to understand project-wide patterns or architecture

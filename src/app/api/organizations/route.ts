@@ -10,7 +10,7 @@ export async function GET() {
     }
 
     const organizations = await getUserOrganizations(session.user.id);
-    
+
     return NextResponse.json(organizations || []);
   } catch (error) {
     console.error('Failed to fetch organizations:', error);

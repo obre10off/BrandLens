@@ -1,42 +1,42 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   /* Professional BrandLens Color Palette - PromptWatch Inspired */
-  --background: #FFFFFF;
+  --background: #ffffff;
   --foreground: #111827;
-  --card: #FFFFFF;
+  --card: #ffffff;
   --card-foreground: #111827;
-  --primary: #2563EB;
-  --primary-foreground: #FFFFFF;
-  --secondary: #F3F4F6;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --secondary: #f3f4f6;
   --secondary-foreground: #374151;
-  --muted: #F8F9FA;
-  --muted-foreground: #6B7280;
-  --accent: #F8F9FA;
+  --muted: #f8f9fa;
+  --muted-foreground: #6b7280;
+  --accent: #f8f9fa;
   --accent-foreground: #111827;
-  --destructive: #EF4444;
-  --destructive-foreground: #FFFFFF;
-  --border: #E5E7EB;
-  --input: #F9FAFB;
-  --ring: #2563EB;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e5e7eb;
+  --input: #f9fafb;
+  --ring: #2563eb;
   --radius: 0.5rem;
-  
+
   /* Extended Professional Palette */
-  --success: #10B981;
-  --success-foreground: #FFFFFF;
-  --warning: #F59E0B;
-  --warning-foreground: #FFFFFF;
-  --info: #3B82F6;
-  --info-foreground: #FFFFFF;
-  --gray-50: #F8F9FA;
-  --gray-100: #F3F4F6;
-  --gray-200: #E5E7EB;
-  --gray-300: #D1D5DB;
-  --gray-400: #9CA3AF;
-  --gray-500: #6B7280;
-  --gray-600: #4B5563;
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+  --info: #3b82f6;
+  --info-foreground: #ffffff;
+  --gray-50: #f8f9fa;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
   --gray-700: #374151;
-  --gray-800: #1F2937;
+  --gray-800: #1f2937;
   --gray-900: #111827;
 }
 
@@ -51,30 +51,37 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* Force light theme regardless of system preference */
-    --background: #FFFFFF;
+    --background: #ffffff;
     --foreground: #111827;
-    --card: #FFFFFF;
+    --card: #ffffff;
     --card-foreground: #111827;
-    --primary: #2563EB;
-    --primary-foreground: #FFFFFF;
-    --secondary: #F3F4F6;
+    --primary: #2563eb;
+    --primary-foreground: #ffffff;
+    --secondary: #f3f4f6;
     --secondary-foreground: #374151;
-    --muted: #F8F9FA;
-    --muted-foreground: #6B7280;
-    --accent: #F8F9FA;
+    --muted: #f8f9fa;
+    --muted-foreground: #6b7280;
+    --accent: #f8f9fa;
     --accent-foreground: #111827;
-    --destructive: #EF4444;
-    --destructive-foreground: #FFFFFF;
-    --border: #E5E7EB;
-    --input: #F9FAFB;
-    --ring: #2563EB;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: #e5e7eb;
+    --input: #f9fafb;
+    --ring: #2563eb;
   }
 }
 
-html, body {
-  background: #FFFFFF !important;
+html,
+body {
+  background: #ffffff !important;
   color: #111827;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
 }
 
 /* Button hover effects */
@@ -84,7 +91,9 @@ button {
 
 button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 button:active {
@@ -107,27 +116,39 @@ a:hover {
 }
 
 /* Force white theme for all elements */
-body, html, #__next, [data-nextjs-scroll-focus-boundary] {
-  background-color: #FFFFFF !important;
+body,
+html,
+#__next,
+[data-nextjs-scroll-focus-boundary] {
+  background-color: #ffffff !important;
   color: #111827 !important;
 }
 
 /* Override any dark theme classes - Force PromptWatch white theme */
-.dark, [data-theme="dark"], [class*="dark"], 
-html.dark, body.dark, html.dark body, .dark * {
-  background-color: #FFFFFF !important;
+.dark,
+[data-theme='dark'],
+[class*='dark'],
+html.dark,
+body.dark,
+html.dark body,
+.dark * {
+  background-color: #ffffff !important;
   color: #111827 !important;
 }
 
 /* Force light theme classes */
-html, body {
-  background: #FFFFFF !important;
+html,
+body {
+  background: #ffffff !important;
 }
 
 /* Tailwind dark mode overrides */
 @media (prefers-color-scheme: dark) {
-  html, body, main, div {
-    background-color: #FFFFFF !important;
+  html,
+  body,
+  main,
+  div {
+    background-color: #ffffff !important;
   }
 }
 
@@ -146,11 +167,18 @@ html, body {
 
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 /* Ensure text readability */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: #000000;
   font-weight: 600;
 }
@@ -287,7 +315,12 @@ html {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
   transition: left 0.5s;
 }
 
@@ -310,7 +343,7 @@ html {
 
 .card-3d:hover {
   transform: translateY(-12px) rotateX(5deg) rotateY(5deg);
-  box-shadow: 
+  box-shadow:
     0 32px 64px -12px rgba(0, 0, 0, 0.12),
     0 20px 40px -12px rgba(37, 99, 235, 0.15);
 }
@@ -335,8 +368,13 @@ html {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
 /* Text shimmer effect */
@@ -350,8 +388,12 @@ html {
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 /* Fix for overlaying sidebar dropdowns - addresses PR issue */
@@ -361,7 +403,9 @@ html {
 
 /* Accessibility - respect user's motion preferences */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -373,7 +417,7 @@ html {
   .hover-lift:hover {
     transform: translateY(-4px) scale(1.01);
   }
-  
+
   .card-3d:hover {
     transform: translateY(-6px) rotateX(2deg) rotateY(2deg);
   }

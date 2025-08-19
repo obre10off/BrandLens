@@ -5,7 +5,13 @@ import { db } from '@/lib/db';
 import { queries, queryExecutions } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { QueryRunner } from '@/components/dashboard/query-runner';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BarChart3, Clock, TrendingUp, AlertCircle } from 'lucide-react';
@@ -13,7 +19,7 @@ import Link from 'next/link';
 
 export default async function QueriesPage() {
   const session = await getServerSession();
-  
+
   if (!session) {
     redirect('/login');
   }
@@ -38,17 +44,24 @@ export default async function QueriesPage() {
   // Get query statistics
   const executions = recentExecutions.map(row => ({
     ...row.query_executions,
-    query: row.queries
+    query: row.queries,
   }));
-  
+
   const stats = {
     totalQueries: executions.length,
-    successRate: executions.length > 0 
-      ? Math.round((executions.filter(e => e.status === 'completed').length / executions.length) * 100)
-      : 0,
-    averageMentions: executions
-      .filter(e => e.status === 'completed' && e.resultCount)
-      .reduce((sum, e) => sum + (e.resultCount || 0), 0) / (executions.filter(e => e.status === 'completed').length || 1),
+    successRate:
+      executions.length > 0
+        ? Math.round(
+            (executions.filter(e => e.status === 'completed').length /
+              executions.length) *
+              100
+          )
+        : 0,
+    averageMentions:
+      executions
+        .filter(e => e.status === 'completed' && e.resultCount)
+        .reduce((sum, e) => sum + (e.resultCount || 0), 0) /
+      (executions.filter(e => e.status === 'completed').length || 1),
   };
 
   return (
@@ -71,9 +84,16 @@ export default async function QueriesPage() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-black">
-              You have <strong>{currentOrg.trial.queriesLimit - (currentOrg.trial.queriesUsed || 0)}</strong> queries 
-              remaining in your trial. 
-              <Link href="/dashboard/billing" className="ml-1 text-primary hover:underline">
+              You have{' '}
+              <strong>
+                {currentOrg.trial.queriesLimit -
+                  (currentOrg.trial.queriesUsed || 0)}
+              </strong>{' '}
+              queries remaining in your trial.
+              <Link
+                href="/dashboard/billing"
+                className="ml-1 text-primary hover:underline"
+              >
                 Upgrade to continue
               </Link>
             </p>
@@ -85,41 +105,53 @@ export default async function QueriesPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-black">Total Queries Run</CardTitle>
+            <CardTitle className="text-sm font-medium text-black">
+              Total Queries Run
+            </CardTitle>
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-black">{stats.totalQueries}</div>
+            <div className="text-2xl font-bold text-black">
+              {stats.totalQueries}
+            </div>
             <p className="text-xs text-black">All time</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-black">Success Rate</CardTitle>
+            <CardTitle className="text-sm font-medium text-black">
+              Success Rate
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-black">{stats.successRate}%</div>
+            <div className="text-2xl font-bold text-black">
+              {stats.successRate}%
+            </div>
             <p className="text-xs text-black">Query completion</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-black">Avg. Mentions</CardTitle>
+            <CardTitle className="text-sm font-medium text-black">
+              Avg. Mentions
+            </CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-black">{stats.averageMentions.toFixed(1)}</div>
+            <div className="text-2xl font-bold text-black">
+              {stats.averageMentions.toFixed(1)}
+            </div>
             <p className="text-xs text-black">Per query</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Query Runner */}
-      <QueryRunner 
-        projectId={currentProject.id} 
+      <QueryRunner
+        projectId={currentProject.id}
         onQueryComplete={() => {
           // This will trigger a page refresh to show new data
           window.location.reload();
@@ -138,38 +170,52 @@ export default async function QueriesPage() {
           {executions.length === 0 ? (
             <div className="text-center py-8 text-black">
               <p className="text-sm mb-4">No queries run yet</p>
-              <p className="text-xs">Use the query runner above to start monitoring your brand</p>
+              <p className="text-xs">
+                Use the query runner above to start monitoring your brand
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
-              {executions.map((execution) => (
-                <div key={execution.id} className="flex items-start justify-between p-4 border rounded-lg">
+              {executions.map(execution => (
+                <div
+                  key={execution.id}
+                  className="flex items-start justify-between p-4 border rounded-lg"
+                >
                   <div className="flex-1">
-                    <h4 className="font-medium text-black">{execution.query.name}</h4>
+                    <h4 className="font-medium text-black">
+                      {execution.query.name}
+                    </h4>
                     <div className="flex items-center gap-4 mt-2 text-xs text-black">
-                      <span>{new Date(execution.createdAt).toLocaleString()}</span>
+                      <span>
+                        {new Date(execution.createdAt).toLocaleString()}
+                      </span>
                       <span>•</span>
                       <span className="capitalize">{execution.provider}</span>
-                      {execution.status === 'completed' && execution.resultCount !== null && (
-                        <>
-                          <span>•</span>
-                          <span>{execution.resultCount} mentions</span>
-                        </>
-                      )}
+                      {execution.status === 'completed' &&
+                        execution.resultCount !== null && (
+                          <>
+                            <span>•</span>
+                            <span>{execution.resultCount} mentions</span>
+                          </>
+                        )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge 
+                    <Badge
                       variant={
-                        execution.status === 'completed' ? 'default' : 
-                        execution.status === 'failed' ? 'destructive' : 
-                        'secondary'
+                        execution.status === 'completed'
+                          ? 'default'
+                          : execution.status === 'failed'
+                            ? 'destructive'
+                            : 'secondary'
                       }
                     >
                       {execution.status}
                     </Badge>
                     {execution.status === 'completed' && (
-                      <Link href={`/dashboard/responses?executionId=${execution.id}`}>
+                      <Link
+                        href={`/dashboard/responses?executionId=${execution.id}`}
+                      >
                         <Button variant="outline" size="sm">
                           View Results
                         </Button>

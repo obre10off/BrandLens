@@ -1,46 +1,63 @@
 import { db } from './db';
-import { organizations, organizationMembers, subscriptions, trials, projects, users } from './db/schema';
+import {
+  organizations,
+  organizationMembers,
+  subscriptions,
+  trials,
+  projects,
+  users,
+} from './db/schema';
 import { eq, and, or, inArray, sql } from 'drizzle-orm';
 import { logger } from './logger';
 
-export async function createDefaultOrganization(userId: string, userEmail: string) {
+export async function createDefaultOrganization(
+  userId: string,
+  userEmail: string
+) {
   try {
     // Extract organization name from email domain
     const domain = userEmail.split('@')[1];
     const orgName = domain ? domain.split('.')[0] : 'My Organization';
-    
+
     // Create organization
     const [org] = await db
       .insert(organizations)
       .values({
         name: orgName.charAt(0).toUpperCase() + orgName.slice(1),
-        domain: domain,
+        domain,
         ownerId: userId,
       })
       .returning();
-    
+
     // Add owner as member
     await db.insert(organizationMembers).values({
       organizationId: org.id,
-      userId: userId,
+      userId,
       role: 'owner',
     });
-    
+
     // Start trial
     const trialEndDate = new Date();
     trialEndDate.setDate(trialEndDate.getDate() + 7);
-    
-    await db.insert(trials).values({
-      organizationId: org.id,
-      status: 'active' as const,
-      endDate: trialEndDate,
-      queriesLimit: 25,
-      queriesUsed: 0,
-    }).returning();
-    
+
+    await db
+      .insert(trials)
+      .values({
+        organizationId: org.id,
+        status: 'active' as const,
+        endDate: trialEndDate,
+        queriesLimit: 25,
+        queriesUsed: 0,
+      })
+      .returning();
+
     return org;
   } catch (error) {
-    logger.error('Failed to create default organization', { userId, userEmail }, error instanceof Error ? error : new Error(String(error)));
+    logger.error(
+      'Failed to create default organization',
+      { userId, userEmail },
+      error instanceof Error ? error : new Error(String(error))
+    );
     throw error;
   }
 }
@@ -76,37 +93,50 @@ export async function getUserOrganizations(userId: string) {
       },
     })
     .from(organizationMembers)
-    .leftJoin(organizations, eq(organizationMembers.organizationId, organizations.id))
+    .leftJoin(
+      organizations,
+      eq(organizationMembers.organizationId, organizations.id)
+    )
     .leftJoin(trials, eq(organizations.id, trials.organizationId))
     .leftJoin(subscriptions, eq(organizations.id, subscriptions.organizationId))
     .where(eq(organizationMembers.userId, userId));
 
   // Get project counts for each organization
   const orgIds = memberships.map(m => m.id).filter(Boolean) as string[];
-  const projectCounts = orgIds.length > 0 ? await db
-    .select({
-      organizationId: projects.organizationId,
-      count: sql<number>`count(${projects.id})`.as('count'),
-    })
-    .from(projects)
-    .where(and(
-      eq(projects.isActive, true),
-      inArray(projects.organizationId, orgIds)
-    ))
-    .groupBy(projects.organizationId) : [];
+  const projectCounts =
+    orgIds.length > 0
+      ? await db
+          .select({
+            organizationId: projects.organizationId,
+            count: sql<number>`count(${projects.id})`.as('count'),
+          })
+          .from(projects)
+          .where(
+            and(
+              eq(projects.isActive, true),
+              inArray(projects.organizationId, orgIds)
+            )
+          )
+          .groupBy(projects.organizationId)
+      : [];
 
   const projectCountMap = new Map(
     projectCounts.map(pc => [pc.organizationId, pc.count])
   );
 
   // Get projects for each organization
-  const orgProjects = orgIds.length > 0 ? await db
-    .select()
-    .from(projects)
-    .where(and(
-      eq(projects.isActive, true),
-      inArray(projects.organizationId, orgIds)
-    )) : [];
+  const orgProjects =
+    orgIds.length > 0
+      ? await db
+          .select()
+          .from(projects)
+          .where(
+            and(
+              eq(projects.isActive, true),
+              inArray(projects.organizationId, orgIds)
+            )
+          )
+      : [];
 
   const projectMap = new Map<string, typeof orgProjects>();
   orgProjects.forEach(project => {
@@ -138,16 +168,18 @@ export async function getOrganization(orgId: string, userId: string) {
   const [member] = await db
     .select()
     .from(organizationMembers)
-    .where(and(
-      eq(organizationMembers.organizationId, orgId),
-      eq(organizationMembers.userId, userId)
-    ))
+    .where(
+      and(
+        eq(organizationMembers.organizationId, orgId),
+        eq(organizationMembers.userId, userId)
+      )
+    )
     .limit(1);
-  
+
   if (!member) {
     throw new Error('Access denied');
   }
-  
+
   // Get organization with all related data
   const [org] = await db
     .select()
@@ -156,7 +188,7 @@ export async function getOrganization(orgId: string, userId: string) {
     .leftJoin(subscriptions, eq(organizations.id, subscriptions.organizationId))
     .where(eq(organizations.id, orgId))
     .limit(1);
-  
+
   if (!org) {
     throw new Error('Organization not found');
   }
@@ -205,20 +237,22 @@ export async function updateOrganization(
   const [member] = await db
     .select()
     .from(organizationMembers)
-    .where(and(
-      eq(organizationMembers.organizationId, orgId),
-      eq(organizationMembers.userId, userId),
-      or(
-        eq(organizationMembers.role, 'owner'),
-        eq(organizationMembers.role, 'admin')
+    .where(
+      and(
+        eq(organizationMembers.organizationId, orgId),
+        eq(organizationMembers.userId, userId),
+        or(
+          eq(organizationMembers.role, 'owner'),
+          eq(organizationMembers.role, 'admin')
+        )
       )
-    ))
+    )
     .limit(1);
-  
+
   if (!member) {
     throw new Error('Permission denied');
   }
-  
+
   const [updated] = await db
     .update(organizations)
     .set({
@@ -227,7 +261,7 @@ export async function updateOrganization(
     })
     .where(eq(organizations.id, orgId))
     .returning();
-  
+
   return updated;
 }
 
@@ -241,53 +275,57 @@ export async function inviteToOrganization(
   const [inviter] = await db
     .select()
     .from(organizationMembers)
-    .where(and(
-      eq(organizationMembers.organizationId, orgId),
-      eq(organizationMembers.userId, inviterId),
-      or(
-        eq(organizationMembers.role, 'owner'),
-        eq(organizationMembers.role, 'admin')
+    .where(
+      and(
+        eq(organizationMembers.organizationId, orgId),
+        eq(organizationMembers.userId, inviterId),
+        or(
+          eq(organizationMembers.role, 'owner'),
+          eq(organizationMembers.role, 'admin')
+        )
       )
-    ))
+    )
     .limit(1);
-  
+
   if (!inviter) {
     throw new Error('Permission denied');
   }
-  
+
   // Check if user exists
   const [invitee] = await db
     .select()
     .from(users)
     .where(eq(users.email, inviteeEmail))
     .limit(1);
-  
+
   if (!invitee) {
     // TODO: Send invitation email
     throw new Error('User not found. Invitation system not yet implemented.');
   }
-  
+
   // Check if already a member
   const [existingMember] = await db
     .select()
     .from(organizationMembers)
-    .where(and(
-      eq(organizationMembers.organizationId, orgId),
-      eq(organizationMembers.userId, invitee.id)
-    ))
+    .where(
+      and(
+        eq(organizationMembers.organizationId, orgId),
+        eq(organizationMembers.userId, invitee.id)
+      )
+    )
     .limit(1);
-  
+
   if (existingMember) {
     throw new Error('User is already a member');
   }
-  
+
   // Add to organization
   await db.insert(organizationMembers).values({
     organizationId: orgId,
     userId: invitee.id,
     role,
   });
-  
+
   return { success: true };
 }
 
@@ -300,34 +338,38 @@ export async function removeFromOrganization(
   const [remover] = await db
     .select()
     .from(organizationMembers)
-    .where(and(
-      eq(organizationMembers.organizationId, orgId),
-      eq(organizationMembers.userId, removerId),
-      or(
-        eq(organizationMembers.role, 'owner'),
-        eq(organizationMembers.role, 'admin')
+    .where(
+      and(
+        eq(organizationMembers.organizationId, orgId),
+        eq(organizationMembers.userId, removerId),
+        or(
+          eq(organizationMembers.role, 'owner'),
+          eq(organizationMembers.role, 'admin')
+        )
       )
-    ))
+    )
     .limit(1);
-  
+
   if (!remover) {
     throw new Error('Permission denied');
   }
-  
+
   // Can't remove the owner
   const [memberToRemove] = await db
     .select()
     .from(organizationMembers)
-    .where(and(
-      eq(organizationMembers.organizationId, orgId),
-      eq(organizationMembers.userId, userIdToRemove)
-    ))
+    .where(
+      and(
+        eq(organizationMembers.organizationId, orgId),
+        eq(organizationMembers.userId, userIdToRemove)
+      )
+    )
     .limit(1);
-  
+
   if (memberToRemove?.role === 'owner') {
     throw new Error('Cannot remove organization owner');
   }
-  
+
   // Remove member
   await db
     .delete(organizationMembers)
@@ -337,7 +379,7 @@ export async function removeFromOrganization(
         eq(organizationMembers.userId, userIdToRemove)
       )
     );
-  
+
   return { success: true };
 }
 
@@ -353,22 +395,21 @@ export async function checkOrganizationLimits(orgId: string) {
     .leftJoin(subscriptions, eq(organizations.id, subscriptions.organizationId))
     .where(eq(organizations.id, orgId))
     .limit(1);
-  
+
   if (!org) {
     throw new Error('Organization not found');
   }
-  
+
   // Count active projects
   const [projectCount] = await db
     .select({
       count: sql<number>`count(*)`.as('count'),
     })
     .from(projects)
-    .where(and(
-      eq(projects.organizationId, orgId),
-      eq(projects.isActive, true)
-    ));
-  
+    .where(
+      and(eq(projects.organizationId, orgId), eq(projects.isActive, true))
+    );
+
   // Check if on trial
   if (org.trial && org.trial.status === 'active') {
     const now = new Date();
@@ -378,14 +419,14 @@ export async function checkOrganizationLimits(orgId: string) {
         .update(trials)
         .set({ status: 'expired' })
         .where(eq(trials.organizationId, orgId));
-      
+
       return {
         hasAccess: false,
         reason: 'trial_expired',
         limits: null,
       };
     }
-    
+
     return {
       hasAccess: true,
       reason: 'trial',
@@ -397,7 +438,7 @@ export async function checkOrganizationLimits(orgId: string) {
       },
     };
   }
-  
+
   // Check subscription
   if (!org.subscription || org.subscription.status !== 'active') {
     return {
@@ -406,10 +447,10 @@ export async function checkOrganizationLimits(orgId: string) {
       limits: null,
     };
   }
-  
+
   // Get limits based on subscription tier
   const tierLimits = await getTierLimits(org.subscription.stripePriceId!);
-  
+
   return {
     hasAccess: true,
     reason: 'subscription',

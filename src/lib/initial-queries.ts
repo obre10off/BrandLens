@@ -17,14 +17,13 @@ export async function runInitialQueries(projectId: string) {
     const projectQueries = await db
       .select()
       .from(queries)
-      .where((q, { eq, and }) => 
-        and(
-          eq(q.projectId, projectId),
-          eq(q.isActive, true)
-        )
+      .where((q, { eq, and }) =>
+        and(eq(q.projectId, projectId), eq(q.isActive, true))
       );
 
-    console.log(`Running ${projectQueries.length} initial queries for project ${projectId}`);
+    console.log(
+      `Running ${projectQueries.length} initial queries for project ${projectId}`
+    );
 
     if (projectQueries.length === 0) {
       console.log('No active queries found for project');
@@ -35,11 +34,14 @@ export async function runInitialQueries(projectId: string) {
     for (const query of projectQueries) {
       try {
         // Create execution record
-        const [execution] = await db.insert(queryExecutions).values({
-          queryId: query.id,
-          status: 'running',
-          provider: 'openai',
-        }).returning();
+        const [execution] = await db
+          .insert(queryExecutions)
+          .values({
+            queryId: query.id,
+            status: 'running',
+            provider: 'openai',
+          })
+          .returning();
 
         // Generate response from AI
         const { text: aiResponse } = await generateText({
@@ -63,21 +65,24 @@ export async function runInitialQueries(projectId: string) {
         for (const mention of mentions) {
           try {
             const sentiment = await analyzeSentiment(mention.context);
-          
-            const [storedMention] = await db.insert(brandMentions).values({
-              projectId,
-              queryExecutionId: execution.id,
-              platform: 'openai',
-              content: mention.context,
-              sentiment: sentiment.sentiment,
-              sentimentScore: sentiment.score,
-              context: mention.fullContext,
-              metadata: {
-                brandName: mention.brandName,
-                competitors: mention.competitors,
-                features: mention.features,
-              },
-            }).returning();
+
+            const [storedMention] = await db
+              .insert(brandMentions)
+              .values({
+                projectId,
+                queryExecutionId: execution.id,
+                platform: 'openai',
+                content: mention.context,
+                sentiment: sentiment.sentiment,
+                sentimentScore: sentiment.score,
+                context: mention.fullContext,
+                metadata: {
+                  brandName: mention.brandName,
+                  competitors: mention.competitors,
+                  features: mention.features,
+                },
+              })
+              .returning();
 
             mentionResults.push(storedMention);
           } catch (error) {
@@ -87,7 +92,8 @@ export async function runInitialQueries(projectId: string) {
         }
 
         // Update execution status
-        await db.update(queryExecutions)
+        await db
+          .update(queryExecutions)
           .set({
             status: 'completed',
             completedAt: new Date(),
@@ -99,8 +105,9 @@ export async function runInitialQueries(projectId: string) {
           })
           .where((executions, { eq }) => eq(executions.id, execution.id));
 
-        console.log(`Query "${query.name}" completed with ${mentionResults.length} mentions`);
-
+        console.log(
+          `Query "${query.name}" completed with ${mentionResults.length} mentions`
+        );
       } catch (error) {
         console.error(`Failed to run query "${query.name}":`, error);
       }

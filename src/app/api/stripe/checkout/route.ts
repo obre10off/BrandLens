@@ -18,9 +18,12 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const validation = checkoutSchema.safeParse(body);
-    
+
     if (!validation.success) {
-      return NextResponse.json({ error: validation.error.errors }, { status: 400 });
+      return NextResponse.json(
+        { error: validation.error.errors },
+        { status: 400 }
+      );
     }
 
     const { priceId, organizationId } = validation.data;
@@ -28,16 +31,22 @@ export async function POST(req: NextRequest) {
     // Verify user has access to this organization
     const organizations = await getUserOrganizations(session.user.id);
     const organization = organizations.find(org => org.id === organizationId);
-    
+
     if (!organization) {
-      return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Organization not found' },
+        { status: 404 }
+      );
     }
 
     // Check if already subscribed
     if (organization.subscription?.status === 'active') {
-      return NextResponse.json({ 
-        error: 'Organization already has an active subscription' 
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Organization already has an active subscription',
+        },
+        { status: 400 }
+      );
     }
 
     // Create Stripe checkout session
@@ -56,19 +65,19 @@ export async function POST(req: NextRequest) {
       client_reference_id: organizationId,
       metadata: {
         userId: session.user.id,
-        organizationId: organizationId,
+        organizationId,
       },
       subscription_data: {
         metadata: {
           userId: session.user.id,
-          organizationId: organizationId,
+          organizationId,
         },
         trial_period_days: 7, // 7-day trial for all new subscriptions
       },
       allow_promotion_codes: true,
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       checkoutUrl: checkoutSession.url,
       sessionId: checkoutSession.id,
     });
@@ -93,21 +102,30 @@ export async function GET(req: NextRequest) {
     const organizationId = searchParams.get('organizationId');
 
     if (!organizationId) {
-      return NextResponse.json({ error: 'Organization ID required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Organization ID required' },
+        { status: 400 }
+      );
     }
 
     // Verify user has access to this organization
     const organizations = await getUserOrganizations(session.user.id);
     const organization = organizations.find(org => org.id === organizationId);
-    
+
     if (!organization) {
-      return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Organization not found' },
+        { status: 404 }
+      );
     }
 
     if (!organization.subscription?.stripeCustomerId) {
-      return NextResponse.json({ 
-        error: 'No subscription found' 
-      }, { status: 404 });
+      return NextResponse.json(
+        {
+          error: 'No subscription found',
+        },
+        { status: 404 }
+      );
     }
 
     // Create customer portal session
@@ -116,8 +134,8 @@ export async function GET(req: NextRequest) {
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing`,
     });
 
-    return NextResponse.json({ 
-      portalUrl: portalSession.url 
+    return NextResponse.json({
+      portalUrl: portalSession.url,
     });
   } catch (error) {
     console.error('Portal session error:', error);

@@ -7,8 +7,20 @@ import { Building2, User, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'sonner';
 
 type OnboardingStep = 'company' | 'about' | 'analysis' | 'complete';
@@ -40,12 +52,12 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('company');
   const [loading, setLoading] = useState(false);
-  
+
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     name: '',
     website: '',
   });
-  
+
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
     firstName: '',
     lastName: '',
@@ -55,8 +67,10 @@ export default function OnboardingPage() {
     country: 'US',
     referralSource: '',
   });
-  
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(
+    null
+  );
 
   const handleCompanySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,11 +83,16 @@ export default function OnboardingPage() {
 
   const handlePersonalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!personalInfo.firstName || !personalInfo.lastName || !personalInfo.role || !personalInfo.companySize) {
+    if (
+      !personalInfo.firstName ||
+      !personalInfo.lastName ||
+      !personalInfo.role ||
+      !personalInfo.companySize
+    ) {
       toast.error('Please fill in all required fields');
       return;
     }
-    
+
     setLoading(true);
     try {
       // Analyze company using AI
@@ -82,9 +101,11 @@ export default function OnboardingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ companyInfo, personalInfo }),
       });
-      
-      if (!response.ok) throw new Error('Analysis failed');
-      
+
+      if (!response.ok) {
+        throw new Error('Analysis failed');
+      }
+
       const result = await response.json();
       setAnalysisResult(result);
       setCurrentStep('analysis');
@@ -109,9 +130,11 @@ export default function OnboardingPage() {
           analysisResult,
         }),
       });
-      
-      if (!response.ok) throw new Error('Failed to complete onboarding');
-      
+
+      if (!response.ok) {
+        throw new Error('Failed to complete onboarding');
+      }
+
       toast.success('Welcome to BrandLens!');
       router.push('/dashboard?tour=true');
     } catch (error) {
@@ -135,7 +158,7 @@ export default function OnboardingPage() {
     },
     analysis: {
       title: 'AI Analysis',
-      description: 'Here\'s what we found about your brand',
+      description: "Here's what we found about your brand",
       icon: Sparkles,
     },
     complete: {
@@ -154,12 +177,19 @@ export default function OnboardingPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-black">
-              Step {currentStep === 'company' ? 1 : currentStep === 'about' ? 2 : 3} of 3
+              Step{' '}
+              {currentStep === 'company' ? 1 : currentStep === 'about' ? 2 : 3}{' '}
+              of 3
             </span>
             <span className="text-sm text-black">
               {Math.round(
-                currentStep === 'company' ? 33 : currentStep === 'about' ? 66 : 100
-              )}%
+                currentStep === 'company'
+                  ? 33
+                  : currentStep === 'about'
+                    ? 66
+                    : 100
+              )}
+              %
             </span>
           </div>
           <div className="h-2 bg-secondary rounded-full overflow-hidden">
@@ -167,7 +197,12 @@ export default function OnboardingPage() {
               className="h-full bg-primary"
               initial={{ width: '0%' }}
               animate={{
-                width: currentStep === 'company' ? '33%' : currentStep === 'about' ? '66%' : '100%',
+                width:
+                  currentStep === 'company'
+                    ? '33%'
+                    : currentStep === 'about'
+                      ? '66%'
+                      : '100%',
               }}
               transition={{ duration: 0.3 }}
             />
@@ -187,8 +222,12 @@ export default function OnboardingPage() {
                 <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                   <currentConfig.icon className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="text-2xl text-black">{currentConfig.title}</CardTitle>
-                <CardDescription className="text-black">{currentConfig.description}</CardDescription>
+                <CardTitle className="text-2xl text-black">
+                  {currentConfig.title}
+                </CardTitle>
+                <CardDescription className="text-black">
+                  {currentConfig.description}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 {currentStep === 'company' && (
@@ -199,7 +238,12 @@ export default function OnboardingPage() {
                         id="company-name"
                         placeholder="Acme Inc."
                         value={companyInfo.name}
-                        onChange={(e) => setCompanyInfo({ ...companyInfo, name: e.target.value })}
+                        onChange={e =>
+                          setCompanyInfo({
+                            ...companyInfo,
+                            name: e.target.value,
+                          })
+                        }
                         required
                       />
                     </div>
@@ -210,7 +254,12 @@ export default function OnboardingPage() {
                         type="url"
                         placeholder="https://viewprinter.tech/"
                         value={companyInfo.website}
-                        onChange={(e) => setCompanyInfo({ ...companyInfo, website: e.target.value })}
+                        onChange={e =>
+                          setCompanyInfo({
+                            ...companyInfo,
+                            website: e.target.value,
+                          })
+                        }
                         required
                       />
                     </div>
@@ -228,7 +277,12 @@ export default function OnboardingPage() {
                         <Input
                           id="first-name"
                           value={personalInfo.firstName}
-                          onChange={(e) => setPersonalInfo({ ...personalInfo, firstName: e.target.value })}
+                          onChange={e =>
+                            setPersonalInfo({
+                              ...personalInfo,
+                              firstName: e.target.value,
+                            })
+                          }
                           required
                         />
                       </div>
@@ -237,41 +291,74 @@ export default function OnboardingPage() {
                         <Input
                           id="last-name"
                           value={personalInfo.lastName}
-                          onChange={(e) => setPersonalInfo({ ...personalInfo, lastName: e.target.value })}
+                          onChange={e =>
+                            setPersonalInfo({
+                              ...personalInfo,
+                              lastName: e.target.value,
+                            })
+                          }
                           required
                         />
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label htmlFor="role">Your Role</Label>
                       <Select
                         value={personalInfo.role}
-                        onValueChange={(value) => setPersonalInfo({ ...personalInfo, role: value })}
+                        onValueChange={value =>
+                          setPersonalInfo({ ...personalInfo, role: value })
+                        }
                       >
                         <SelectTrigger id="role">
                           <SelectValue placeholder="Select your role" />
                         </SelectTrigger>
-                        <SelectContent 
+                        <SelectContent
                           className="!bg-white border-2 border-gray-400 shadow-2xl rounded-xl z-[9999] p-2"
                           style={{ backgroundColor: '#ffffff', opacity: 1 }}
                         >
-                          <SelectItem value="founder" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                            <span className="text-sm text-gray-900">Founder/CEO</span>
+                          <SelectItem
+                            value="founder"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
+                            <span className="text-sm text-gray-900">
+                              Founder/CEO
+                            </span>
                           </SelectItem>
-                          <SelectItem value="marketing" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                            <span className="text-sm text-gray-900">Marketing</span>
+                          <SelectItem
+                            value="marketing"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
+                            <span className="text-sm text-gray-900">
+                              Marketing
+                            </span>
                           </SelectItem>
-                          <SelectItem value="product" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                            <span className="text-sm text-gray-900">Product</span>
+                          <SelectItem
+                            value="product"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
+                            <span className="text-sm text-gray-900">
+                              Product
+                            </span>
                           </SelectItem>
-                          <SelectItem value="engineering" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                            <span className="text-sm text-gray-900">Engineering</span>
+                          <SelectItem
+                            value="engineering"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
+                            <span className="text-sm text-gray-900">
+                              Engineering
+                            </span>
                           </SelectItem>
-                          <SelectItem value="sales" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                          <SelectItem
+                            value="sales"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
                             <span className="text-sm text-gray-900">Sales</span>
                           </SelectItem>
-                          <SelectItem value="other" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                          <SelectItem
+                            value="other"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
                             <span className="text-sm text-gray-900">Other</span>
                           </SelectItem>
                         </SelectContent>
@@ -282,29 +369,59 @@ export default function OnboardingPage() {
                       <Label htmlFor="company-size">Company Size</Label>
                       <Select
                         value={personalInfo.companySize}
-                        onValueChange={(value) => setPersonalInfo({ ...personalInfo, companySize: value })}
+                        onValueChange={value =>
+                          setPersonalInfo({
+                            ...personalInfo,
+                            companySize: value,
+                          })
+                        }
                       >
                         <SelectTrigger id="company-size">
                           <SelectValue placeholder="Select company size" />
                         </SelectTrigger>
-                        <SelectContent 
+                        <SelectContent
                           className="!bg-white border-2 border-gray-400 shadow-2xl rounded-xl z-[9999] p-2"
                           style={{ backgroundColor: '#ffffff', opacity: 1 }}
                         >
-                          <SelectItem value="1-10" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                            <span className="text-sm text-gray-900">1-10 employees</span>
+                          <SelectItem
+                            value="1-10"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
+                            <span className="text-sm text-gray-900">
+                              1-10 employees
+                            </span>
                           </SelectItem>
-                          <SelectItem value="11-50" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                            <span className="text-sm text-gray-900">11-50 employees</span>
+                          <SelectItem
+                            value="11-50"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
+                            <span className="text-sm text-gray-900">
+                              11-50 employees
+                            </span>
                           </SelectItem>
-                          <SelectItem value="51-200" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                            <span className="text-sm text-gray-900">51-200 employees</span>
+                          <SelectItem
+                            value="51-200"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
+                            <span className="text-sm text-gray-900">
+                              51-200 employees
+                            </span>
                           </SelectItem>
-                          <SelectItem value="201-500" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                            <span className="text-sm text-gray-900">201-500 employees</span>
+                          <SelectItem
+                            value="201-500"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
+                            <span className="text-sm text-gray-900">
+                              201-500 employees
+                            </span>
                           </SelectItem>
-                          <SelectItem value="500+" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                            <span className="text-sm text-gray-900">500+ employees</span>
+                          <SelectItem
+                            value="500+"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
+                            <span className="text-sm text-gray-900">
+                              500+ employees
+                            </span>
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -315,29 +432,59 @@ export default function OnboardingPage() {
                         <Label htmlFor="language">Language</Label>
                         <Select
                           value={personalInfo.language}
-                          onValueChange={(value) => setPersonalInfo({ ...personalInfo, language: value })}
+                          onValueChange={value =>
+                            setPersonalInfo({
+                              ...personalInfo,
+                              language: value,
+                            })
+                          }
                         >
                           <SelectTrigger id="language">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent 
+                          <SelectContent
                             className="!bg-white border-2 border-gray-400 shadow-2xl rounded-xl z-[9999] p-2"
                             style={{ backgroundColor: '#ffffff', opacity: 1 }}
                           >
-                            <SelectItem value="en" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                              <span className="text-sm text-gray-900">English</span>
+                            <SelectItem
+                              value="en"
+                              className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                            >
+                              <span className="text-sm text-gray-900">
+                                English
+                              </span>
                             </SelectItem>
-                            <SelectItem value="es" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                              <span className="text-sm text-gray-900">Spanish</span>
+                            <SelectItem
+                              value="es"
+                              className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                            >
+                              <span className="text-sm text-gray-900">
+                                Spanish
+                              </span>
                             </SelectItem>
-                            <SelectItem value="fr" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                              <span className="text-sm text-gray-900">French</span>
+                            <SelectItem
+                              value="fr"
+                              className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                            >
+                              <span className="text-sm text-gray-900">
+                                French
+                              </span>
                             </SelectItem>
-                            <SelectItem value="de" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                              <span className="text-sm text-gray-900">German</span>
+                            <SelectItem
+                              value="de"
+                              className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                            >
+                              <span className="text-sm text-gray-900">
+                                German
+                              </span>
                             </SelectItem>
-                            <SelectItem value="pt" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                              <span className="text-sm text-gray-900">Portuguese</span>
+                            <SelectItem
+                              value="pt"
+                              className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                            >
+                              <span className="text-sm text-gray-900">
+                                Portuguese
+                              </span>
                             </SelectItem>
                           </SelectContent>
                         </Select>
@@ -346,38 +493,80 @@ export default function OnboardingPage() {
                         <Label htmlFor="country">Country</Label>
                         <Select
                           value={personalInfo.country}
-                          onValueChange={(value) => setPersonalInfo({ ...personalInfo, country: value })}
+                          onValueChange={value =>
+                            setPersonalInfo({ ...personalInfo, country: value })
+                          }
                         >
                           <SelectTrigger id="country">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent 
+                          <SelectContent
                             className="!bg-white border-2 border-gray-400 shadow-2xl rounded-xl z-[9999] p-2"
                             style={{ backgroundColor: '#ffffff', opacity: 1 }}
                           >
-                            <SelectItem value="US" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                              <span className="text-sm text-gray-900">United States</span>
+                            <SelectItem
+                              value="US"
+                              className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                            >
+                              <span className="text-sm text-gray-900">
+                                United States
+                              </span>
                             </SelectItem>
-                            <SelectItem value="UK" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                              <span className="text-sm text-gray-900">United Kingdom</span>
+                            <SelectItem
+                              value="UK"
+                              className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                            >
+                              <span className="text-sm text-gray-900">
+                                United Kingdom
+                              </span>
                             </SelectItem>
-                            <SelectItem value="CA" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                              <span className="text-sm text-gray-900">Canada</span>
+                            <SelectItem
+                              value="CA"
+                              className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                            >
+                              <span className="text-sm text-gray-900">
+                                Canada
+                              </span>
                             </SelectItem>
-                            <SelectItem value="DE" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                              <span className="text-sm text-gray-900">Germany</span>
+                            <SelectItem
+                              value="DE"
+                              className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                            >
+                              <span className="text-sm text-gray-900">
+                                Germany
+                              </span>
                             </SelectItem>
-                            <SelectItem value="FR" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                              <span className="text-sm text-gray-900">France</span>
+                            <SelectItem
+                              value="FR"
+                              className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                            >
+                              <span className="text-sm text-gray-900">
+                                France
+                              </span>
                             </SelectItem>
-                            <SelectItem value="ES" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                              <span className="text-sm text-gray-900">Spain</span>
+                            <SelectItem
+                              value="ES"
+                              className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                            >
+                              <span className="text-sm text-gray-900">
+                                Spain
+                              </span>
                             </SelectItem>
-                            <SelectItem value="BR" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                              <span className="text-sm text-gray-900">Brazil</span>
+                            <SelectItem
+                              value="BR"
+                              className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                            >
+                              <span className="text-sm text-gray-900">
+                                Brazil
+                              </span>
                             </SelectItem>
-                            <SelectItem value="other" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                              <span className="text-sm text-gray-900">Other</span>
+                            <SelectItem
+                              value="other"
+                              className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                            >
+                              <span className="text-sm text-gray-900">
+                                Other
+                              </span>
                             </SelectItem>
                           </SelectContent>
                         </Select>
@@ -385,34 +574,69 @@ export default function OnboardingPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="referral">How did you hear about us?</Label>
+                      <Label htmlFor="referral">
+                        How did you hear about us?
+                      </Label>
                       <Select
                         value={personalInfo.referralSource}
-                        onValueChange={(value) => setPersonalInfo({ ...personalInfo, referralSource: value })}
+                        onValueChange={value =>
+                          setPersonalInfo({
+                            ...personalInfo,
+                            referralSource: value,
+                          })
+                        }
                       >
                         <SelectTrigger id="referral">
                           <SelectValue placeholder="Select source" />
                         </SelectTrigger>
-                        <SelectContent 
+                        <SelectContent
                           className="!bg-white border-2 border-gray-400 shadow-2xl rounded-xl z-[9999] p-2"
                           style={{ backgroundColor: '#ffffff', opacity: 1 }}
                         >
-                          <SelectItem value="google" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                            <span className="text-sm text-gray-900">Google Search</span>
+                          <SelectItem
+                            value="google"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
+                            <span className="text-sm text-gray-900">
+                              Google Search
+                            </span>
                           </SelectItem>
-                          <SelectItem value="social" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                            <span className="text-sm text-gray-900">Social Media</span>
+                          <SelectItem
+                            value="social"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
+                            <span className="text-sm text-gray-900">
+                              Social Media
+                            </span>
                           </SelectItem>
-                          <SelectItem value="friend" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                            <span className="text-sm text-gray-900">Friend/Colleague</span>
+                          <SelectItem
+                            value="friend"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
+                            <span className="text-sm text-gray-900">
+                              Friend/Colleague
+                            </span>
                           </SelectItem>
-                          <SelectItem value="blog" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                            <span className="text-sm text-gray-900">Blog Post</span>
+                          <SelectItem
+                            value="blog"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
+                            <span className="text-sm text-gray-900">
+                              Blog Post
+                            </span>
                           </SelectItem>
-                          <SelectItem value="producthunt" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
-                            <span className="text-sm text-gray-900">Product Hunt</span>
+                          <SelectItem
+                            value="producthunt"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
+                            <span className="text-sm text-gray-900">
+                              Product Hunt
+                            </span>
                           </SelectItem>
-                          <SelectItem value="other" className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer">
+                          <SelectItem
+                            value="other"
+                            className="px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg cursor-pointer"
+                          >
                             <span className="text-sm text-gray-900">Other</span>
                           </SelectItem>
                         </SelectContent>
@@ -436,17 +660,27 @@ export default function OnboardingPage() {
                   <div className="space-y-6">
                     <div className="space-y-4">
                       <div>
-                        <h3 className="font-semibold mb-2 text-black">Company Description</h3>
-                        <p className="text-sm text-black">{analysisResult.description}</p>
+                        <h3 className="font-semibold mb-2 text-black">
+                          Company Description
+                        </h3>
+                        <p className="text-sm text-black">
+                          {analysisResult.description}
+                        </p>
                       </div>
 
                       <div>
-                        <h3 className="font-semibold mb-2 text-black">Industry</h3>
-                        <p className="text-sm text-black">{analysisResult.industry}</p>
+                        <h3 className="font-semibold mb-2 text-black">
+                          Industry
+                        </h3>
+                        <p className="text-sm text-black">
+                          {analysisResult.industry}
+                        </p>
                       </div>
 
                       <div>
-                        <h3 className="font-semibold mb-2 text-black">Key Features</h3>
+                        <h3 className="font-semibold mb-2 text-black">
+                          Key Features
+                        </h3>
                         <ul className="list-disc list-inside text-sm text-black">
                           {analysisResult.keyFeatures.map((feature, i) => (
                             <li key={i}>{feature}</li>
@@ -455,7 +689,9 @@ export default function OnboardingPage() {
                       </div>
 
                       <div>
-                        <h3 className="font-semibold mb-2 text-black">Suggested Competitors</h3>
+                        <h3 className="font-semibold mb-2 text-black">
+                          Suggested Competitors
+                        </h3>
                         <div className="flex flex-wrap gap-2">
                           {analysisResult.competitors.map((competitor, i) => (
                             <span
@@ -469,8 +705,12 @@ export default function OnboardingPage() {
                       </div>
 
                       <div>
-                        <h3 className="font-semibold mb-2 text-black">Ideal Customer Profile</h3>
-                        <p className="text-sm text-black">{analysisResult.icp}</p>
+                        <h3 className="font-semibold mb-2 text-black">
+                          Ideal Customer Profile
+                        </h3>
+                        <p className="text-sm text-black">
+                          {analysisResult.icp}
+                        </p>
                       </div>
                     </div>
 

@@ -2,10 +2,16 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { db } from '@/lib/db';
 import { users, sessions, accounts, verifications } from '@/lib/db/schema';
-import { sendVerificationEmail, sendResetPasswordEmail } from './email-verification';
+import {
+  sendVerificationEmail,
+  sendResetPasswordEmail,
+} from './email-verification';
 
 // Validate environment variables
-if (!process.env.BETTER_AUTH_SECRET || process.env.BETTER_AUTH_SECRET.length < 32) {
+if (
+  !process.env.BETTER_AUTH_SECRET ||
+  process.env.BETTER_AUTH_SECRET.length < 32
+) {
   throw new Error('BETTER_AUTH_SECRET must be at least 32 characters long');
 }
 
@@ -21,27 +27,27 @@ export const auth = betterAuth({
       verification: verifications,
     },
   }),
-  
+
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false, // Disabled for development testing
     sendResetPassword: sendResetPasswordEmail,
   },
-  
+
   emailVerification: {
     sendVerificationEmail,
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     expiresIn: 3600, // 1 hour
   },
-  
+
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     },
   },
-  
+
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day
@@ -52,20 +58,20 @@ export const auth = betterAuth({
       httpOnly: true,
     },
   },
-  
+
   account: {
     accountLinking: {
       enabled: true,
       trustedProviders: ['google'],
     },
   },
-  
+
   rateLimit: {
     enabled: true,
     window: 60, // 1 minute
     max: 10, // 10 requests per minute
   },
-  
+
   advanced: {
     cookiePrefix: 'brandlens',
     database: {

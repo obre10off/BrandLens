@@ -5,7 +5,7 @@ import { createDefaultOrganization } from '@/lib/organizations';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Call Better Auth signup
     const response = await auth.api.signUpEmail({
       body: {

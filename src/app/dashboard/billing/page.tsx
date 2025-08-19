@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -49,19 +55,19 @@ export default function BillingPage() {
   const fetchBillingInfo = async () => {
     try {
       setLoadingOrgs(true);
-      
+
       // Get user's organization info
       const orgsResponse = await fetch('/api/organizations');
       if (!orgsResponse.ok) {
         throw new Error('Failed to fetch organizations');
       }
-      
+
       const orgs = await orgsResponse.json();
-      
+
       if (orgs.length > 0) {
         const org = orgs[0];
         setOrganizationId(org.id);
-        
+
         if (org.subscription?.status === 'active') {
           setCurrentPlan(org.subscription.plan);
         } else if (org.trial?.status === 'active') {
@@ -103,13 +109,15 @@ export default function BillingPage() {
       }
 
       const { checkoutUrl } = await response.json();
-      
+
       if (checkoutUrl) {
         window.location.href = checkoutUrl;
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to start checkout');
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to start checkout'
+      );
     } finally {
       setLoading(false);
     }
@@ -123,21 +131,27 @@ export default function BillingPage() {
 
     setLoadingPortal(true);
     try {
-      const response = await fetch(`/api/stripe/checkout?organizationId=${organizationId}`);
-      
+      const response = await fetch(
+        `/api/stripe/checkout?organizationId=${organizationId}`
+      );
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to access billing portal');
       }
 
       const { portalUrl } = await response.json();
-      
+
       if (portalUrl) {
         window.location.href = portalUrl;
       }
     } catch (error) {
       console.error('Portal error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to access billing portal');
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Failed to access billing portal'
+      );
     } finally {
       setLoadingPortal(false);
     }
@@ -187,7 +201,9 @@ export default function BillingPage() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold mb-2 text-black">Billing & Subscription</h1>
+        <h1 className="text-3xl font-bold mb-2 text-black">
+          Billing & Subscription
+        </h1>
         <p className="text-black">
           Manage your subscription and billing settings
         </p>
@@ -198,10 +214,12 @@ export default function BillingPage() {
         <Alert className="border-orange-200 bg-orange-50">
           <AlertCircle className="h-4 w-4 text-orange-600" />
           <AlertDescription className="text-black">
-            <strong>Free Trial Active:</strong> You&apos;ve used {trialInfo.queriesUsed} of {trialInfo.queriesLimit} queries.
+            <strong>Free Trial Active:</strong> You&apos;ve used{' '}
+            {trialInfo.queriesUsed} of {trialInfo.queriesLimit} queries.
             {trialInfo.queriesUsed >= trialInfo.queriesLimit * 0.8 && (
               <span className="block mt-1">
-                You&apos;re running low on trial queries. Upgrade now to continue tracking your brand.
+                You&apos;re running low on trial queries. Upgrade now to
+                continue tracking your brand.
               </span>
             )}
           </AlertDescription>
@@ -224,7 +242,9 @@ export default function BillingPage() {
                   {currentPlan} Plan
                 </h3>
                 <p className="text-sm text-black">
-                  ${pricingTiers[currentPlan as keyof typeof pricingTiers].price}/month
+                  $
+                  {pricingTiers[currentPlan as keyof typeof pricingTiers].price}
+                  /month
                 </p>
               </div>
               <Button
@@ -253,17 +273,18 @@ export default function BillingPage() {
       <div className="grid gap-6 md:grid-cols-3">
         {Object.entries(pricingTiers).map(([key, tier]) => {
           const isCurrentPlan = currentPlan === key;
-          const isUpgrade = currentPlan && 
-            ['starter', 'growth'].indexOf(currentPlan) < ['starter', 'growth', 'scale'].indexOf(key);
+          const isUpgrade =
+            currentPlan &&
+            ['starter', 'growth'].indexOf(currentPlan) <
+              ['starter', 'growth', 'scale'].indexOf(key);
 
           return (
-            <Card 
-              key={key} 
-              className={isCurrentPlan ? 'border-primary' : ''}
-            >
+            <Card key={key} className={isCurrentPlan ? 'border-primary' : ''}>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl text-black">{tier.name}</CardTitle>
+                  <CardTitle className="text-xl text-black">
+                    {tier.name}
+                  </CardTitle>
                   {isCurrentPlan && (
                     <Badge variant="default">Current Plan</Badge>
                   )}
@@ -271,7 +292,9 @@ export default function BillingPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <span className="text-3xl font-bold text-black">${tier.price}</span>
+                  <span className="text-3xl font-bold text-black">
+                    ${tier.price}
+                  </span>
                   <span className="text-black">/month</span>
                 </div>
 
@@ -320,19 +343,27 @@ export default function BillingPage() {
       {/* FAQ Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-black">Frequently Asked Questions</CardTitle>
+          <CardTitle className="text-black">
+            Frequently Asked Questions
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <h4 className="font-semibold text-black">Can I change plans anytime?</h4>
+            <h4 className="font-semibold text-black">
+              Can I change plans anytime?
+            </h4>
             <p className="text-sm text-black mt-1">
-              Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.
+              Yes, you can upgrade or downgrade your plan at any time. Changes
+              take effect immediately.
             </p>
           </div>
           <div>
-            <h4 className="font-semibold text-black">What happens to my data if I cancel?</h4>
+            <h4 className="font-semibold text-black">
+              What happens to my data if I cancel?
+            </h4>
             <p className="text-sm text-black mt-1">
-              Your data is retained for 30 days after cancellation. You can reactivate anytime within this period.
+              Your data is retained for 30 days after cancellation. You can
+              reactivate anytime within this period.
             </p>
           </div>
           <div>

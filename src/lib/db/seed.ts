@@ -325,11 +325,11 @@ const saasQueryTemplates = [
 
 export async function seedDatabase() {
   console.log('Seeding database with query templates...');
-  
+
   try {
     // Insert query templates
     await db.insert(queryTemplates).values(saasQueryTemplates);
-    
+
     console.log(`✅ Inserted ${saasQueryTemplates.length} query templates`);
   } catch (error) {
     console.error('Error seeding database:', error);
@@ -344,7 +344,7 @@ if (require.main === module) {
       console.log('Database seeding completed!');
       process.exit(0);
     })
-    .catch((error) => {
+    .catch(error => {
       console.error('Database seeding failed:', error);
       process.exit(1);
     });

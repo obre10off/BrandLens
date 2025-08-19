@@ -46,7 +46,10 @@ export async function detectMentions(
       // Get context (previous and next sentence)
       const contextStart = Math.max(0, index - 1);
       const contextEnd = Math.min(sentences.length - 1, index + 1);
-      const fullContext = sentences.slice(contextStart, contextEnd + 1).join(' ').trim();
+      const fullContext = sentences
+        .slice(contextStart, contextEnd + 1)
+        .join(' ')
+        .trim();
 
       // Check which competitors are mentioned in the context
       const mentionedCompetitors = competitorNames.filter(comp =>
@@ -67,11 +70,16 @@ export async function detectMentions(
 
     // Also check for competitor mentions without brand
     competitorNames.forEach(competitor => {
-      if (lowerSentence.includes(competitor.toLowerCase()) && 
-          !lowerSentence.includes(lowerBrand)) {
+      if (
+        lowerSentence.includes(competitor.toLowerCase()) &&
+        !lowerSentence.includes(lowerBrand)
+      ) {
         const contextStart = Math.max(0, index - 1);
         const contextEnd = Math.min(sentences.length - 1, index + 1);
-        const fullContext = sentences.slice(contextStart, contextEnd + 1).join(' ').trim();
+        const fullContext = sentences
+          .slice(contextStart, contextEnd + 1)
+          .join(' ')
+          .trim();
 
         const features = extractFeatures(fullContext);
 
@@ -91,19 +99,43 @@ export async function detectMentions(
 
 function extractFeatures(text: string): string[] {
   const features: string[] = [];
-  
+
   // Common feature keywords
   const featureKeywords = [
-    'analytics', 'dashboard', 'automation', 'integration', 'API',
-    'real-time', 'collaboration', 'security', 'performance', 'scalability',
-    'reporting', 'workflow', 'AI', 'machine learning', 'ML',
-    'cloud', 'mobile', 'enterprise', 'customization', 'support',
-    'pricing', 'free trial', 'open source', 'self-hosted', 'SaaS',
-    'user-friendly', 'intuitive', 'fast', 'reliable', 'robust'
+    'analytics',
+    'dashboard',
+    'automation',
+    'integration',
+    'API',
+    'real-time',
+    'collaboration',
+    'security',
+    'performance',
+    'scalability',
+    'reporting',
+    'workflow',
+    'AI',
+    'machine learning',
+    'ML',
+    'cloud',
+    'mobile',
+    'enterprise',
+    'customization',
+    'support',
+    'pricing',
+    'free trial',
+    'open source',
+    'self-hosted',
+    'SaaS',
+    'user-friendly',
+    'intuitive',
+    'fast',
+    'reliable',
+    'robust',
   ];
 
   const lowerText = text.toLowerCase();
-  
+
   featureKeywords.forEach(keyword => {
     if (lowerText.includes(keyword)) {
       features.push(keyword);

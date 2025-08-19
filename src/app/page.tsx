@@ -1,15 +1,15 @@
 'use client';
 
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { 
-  ArrowRight, 
-  BarChart3, 
-  Target, 
-  TrendingUp, 
-  Users, 
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import {
+  ArrowRight,
+  BarChart3,
+  Target,
+  TrendingUp,
+  Users,
   Zap,
   MessageSquare,
   Sparkles,
@@ -19,8 +19,8 @@ import {
   Eye,
   Shield,
   Rocket,
-  Brain
-} from "lucide-react";
+  Brain,
+} from 'lucide-react';
 
 export default function Home() {
   return (
@@ -33,14 +33,16 @@ export default function Home() {
               <BarChart3 className="h-7 w-7 text-primary transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
               <div className="absolute inset-0 bg-primary/20 rounded-full scale-0 group-hover:scale-150 transition-transform duration-300 -z-10"></div>
             </div>
-            <span className="font-bold text-xl text-black tracking-tight">BrandLens</span>
+            <span className="font-bold text-xl text-black tracking-tight">
+              BrandLens
+            </span>
           </div>
-          
+
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-2">
             <Link href="/pricing">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className="relative hover:text-primary transition-all duration-300 hover:bg-primary/5 group px-4"
               >
                 Pricing
@@ -48,8 +50,8 @@ export default function Home() {
               </Button>
             </Link>
             <Link href="/login">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className="relative hover:text-primary transition-all duration-300 hover:bg-primary/5 group px-4"
               >
                 Login
@@ -82,19 +84,24 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-primary/12 pointer-events-none" />
         <div className="absolute top-20 left-10 w-20 h-20 bg-primary/5 rounded-full blur-xl animate-pulse"></div>
         <div className="absolute bottom-20 right-10 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl animate-pulse animation-delay-300"></div>
-        <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-primary/10 rounded-full blur-lg animate-bounce animation-delay-500" style={{animationDuration: '3s'}}></div>
-        
+        <div
+          className="absolute top-1/2 left-1/4 w-16 h-16 bg-primary/10 rounded-full blur-lg animate-bounce animation-delay-500"
+          style={{ animationDuration: '3s' }}
+        ></div>
+
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center space-y-8 sm:space-y-10">
             {/* Enhanced Badge */}
             <div className="animate-slideDown">
-              <Badge 
-                variant="secondary" 
+              <Badge
+                variant="secondary"
                 className="relative px-6 py-2.5 shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all duration-500 hover:scale-105 border-primary/20 group cursor-pointer"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-blue-500/5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <Sparkles className="h-4 w-4 mr-2 inline text-primary animate-pulse" />
-                <span className="font-semibold">56% cheaper than PromptWatch</span>
+                <span className="font-semibold">
+                  56% cheaper than PromptWatch
+                </span>
               </Badge>
             </div>
 
@@ -115,17 +122,22 @@ export default function Home() {
             {/* Enhanced Subtitle */}
             <div className="animate-slideUp animation-delay-200">
               <p className="text-lg sm:text-xl lg:text-2xl text-black/80 max-w-4xl mx-auto leading-relaxed font-medium">
-                Monitor how <span className="font-semibold text-primary">ChatGPT, Claude, and other AI platforms</span> mention your SaaS.
+                Monitor how{' '}
+                <span className="font-semibold text-primary">
+                  ChatGPT, Claude, and other AI platforms
+                </span>{' '}
+                mention your SaaS.
                 <br className="hidden sm:block" />
-                Get weekly insights, competitor analysis, and actionable recommendations.
+                Get weekly insights, competitor analysis, and actionable
+                recommendations.
               </p>
             </div>
 
             {/* Enhanced CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center pt-8 animate-slideUp animation-delay-400">
               <Link href="/signup" className="group">
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   className="relative overflow-hidden bg-primary hover:bg-primary/90 shadow-xl hover:shadow-2xl transition-all duration-300 px-10 py-4 text-lg font-semibold transform hover:scale-105 hover:-translate-y-1"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-primary to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -137,9 +149,9 @@ export default function Home() {
                 </Button>
               </Link>
               <Link href="#features" className="group">
-                <Button 
-                  size="lg" 
-                  variant="outline" 
+                <Button
+                  size="lg"
+                  variant="outline"
                   className="relative overflow-hidden border-2 border-primary/30 hover:border-primary bg-white/80 backdrop-blur shadow-lg hover:shadow-xl transition-all duration-300 px-10 py-4 text-lg font-semibold hover:bg-primary/5 transform hover:scale-105"
                 >
                   <Eye className="h-5 w-5 mr-3 transition-transform group-hover:scale-110" />
@@ -171,11 +183,17 @@ export default function Home() {
       </section>
 
       {/* Enhanced Features Grid with Sticky Elements */}
-      <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent via-primary/3 to-primary/8 relative">
+      <section
+        id="features"
+        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent via-primary/3 to-primary/8 relative"
+      >
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16 sm:mb-20 space-y-6">
             <div className="animate-fadeIn">
-              <Badge variant="secondary" className="px-4 py-2 mb-6 bg-white/80 backdrop-blur shadow-md">
+              <Badge
+                variant="secondary"
+                className="px-4 py-2 mb-6 bg-white/80 backdrop-blur shadow-md"
+              >
                 <Brain className="h-4 w-4 mr-2 text-primary" />
                 Powered by AI Intelligence
               </Badge>
@@ -188,11 +206,12 @@ export default function Home() {
               </span>
             </h2>
             <p className="text-lg sm:text-xl text-black/70 max-w-3xl mx-auto leading-relaxed">
-              Built specifically for SaaS companies, not generic monitoring. 
-              Get the edge over competitors who aren&apos;t tracking their AI presence.
+              Built specifically for SaaS companies, not generic monitoring. Get
+              the edge over competitors who aren&apos;t tracking their AI
+              presence.
             </p>
           </div>
-          
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Feature Card 1 */}
             <Card className="group relative p-8 space-y-6 hover:shadow-2xl transition-all duration-500 border-0 bg-white/90 backdrop-blur hover:bg-white hover:-translate-y-2 animate-slideUp overflow-hidden">
@@ -201,10 +220,13 @@ export default function Home() {
                 <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
                   <MessageSquare className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-black mt-4 group-hover:text-primary transition-colors duration-300">50+ SaaS Queries</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-black mt-4 group-hover:text-primary transition-colors duration-300">
+                  50+ SaaS Queries
+                </h3>
                 <p className="text-black/70 leading-relaxed mt-3">
-                  Pre-built queries designed for SaaS categories. No setup needed - 
-                  just select your category and start tracking in minutes.
+                  Pre-built queries designed for SaaS categories. No setup
+                  needed - just select your category and start tracking in
+                  minutes.
                 </p>
               </div>
             </Card>
@@ -216,10 +238,12 @@ export default function Home() {
                 <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
                   <Users className="h-8 w-8 text-blue-600" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-black mt-4 group-hover:text-blue-600 transition-colors duration-300">Competitor Analysis</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-black mt-4 group-hover:text-blue-600 transition-colors duration-300">
+                  Competitor Analysis
+                </h3>
                 <p className="text-black/70 leading-relaxed mt-3">
-                  See who&apos;s winning the AI mention battle. Track up to 10 competitors 
-                  and identify gaps in your visibility strategy.
+                  See who&apos;s winning the AI mention battle. Track up to 10
+                  competitors and identify gaps in your visibility strategy.
                 </p>
               </div>
             </Card>
@@ -231,10 +255,12 @@ export default function Home() {
                 <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
                   <TrendingUp className="h-8 w-8 text-green-600" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-black mt-4 group-hover:text-green-600 transition-colors duration-300">Actionable Insights</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-black mt-4 group-hover:text-green-600 transition-colors duration-300">
+                  Actionable Insights
+                </h3>
                 <p className="text-black/70 leading-relaxed mt-3">
-                  Weekly reports with specific recommendations. Know exactly what to 
-                  do to improve your AI visibility and beat competitors.
+                  Weekly reports with specific recommendations. Know exactly
+                  what to do to improve your AI visibility and beat competitors.
                 </p>
               </div>
             </Card>
@@ -246,9 +272,11 @@ export default function Home() {
                 <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
                   <Target className="h-8 w-8 text-purple-600" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-black mt-4 group-hover:text-purple-600 transition-colors duration-300">Gap Analysis</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-black mt-4 group-hover:text-purple-600 transition-colors duration-300">
+                  Gap Analysis
+                </h3>
                 <p className="text-black/70 leading-relaxed mt-3">
-                  Discover queries where competitors appear but you don&apos;t. 
+                  Discover queries where competitors appear but you don&apos;t.
                   Turn blind spots into profitable opportunities.
                 </p>
               </div>
@@ -261,9 +289,11 @@ export default function Home() {
                 <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-orange-500/20 to-orange-500/5 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
                   <Zap className="h-8 w-8 text-orange-600" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-black mt-4 group-hover:text-orange-600 transition-colors duration-300">Real-time Updates</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-black mt-4 group-hover:text-orange-600 transition-colors duration-300">
+                  Real-time Updates
+                </h3>
                 <p className="text-black/70 leading-relaxed mt-3">
-                  Get notified when important mentions happen. React quickly to 
+                  Get notified when important mentions happen. React quickly to
                   changes in your AI visibility before competitors notice.
                 </p>
               </div>
@@ -276,10 +306,12 @@ export default function Home() {
                 <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-pink-500/20 to-pink-500/5 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
                   <BarChart3 className="h-8 w-8 text-pink-600" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-black mt-4 group-hover:text-pink-600 transition-colors duration-300">Sentiment Analysis</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-black mt-4 group-hover:text-pink-600 transition-colors duration-300">
+                  Sentiment Analysis
+                </h3>
                 <p className="text-black/70 leading-relaxed mt-3">
-                  Understand not just if you&apos;re mentioned, but how. Track positive, 
-                  neutral, and negative sentiment trends over time.
+                  Understand not just if you&apos;re mentioned, but how. Track
+                  positive, neutral, and negative sentiment trends over time.
                 </p>
               </div>
             </Card>
@@ -291,13 +323,22 @@ export default function Home() {
       <section className="py-24 px-4 relative">
         <div className="container mx-auto max-w-5xl text-center">
           <div className="space-y-4 mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-black">Simple, Transparent Pricing</h2>
-            <p className="text-lg text-black/70">Choose the plan that fits your growth stage</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-black">
+              Simple, Transparent Pricing
+            </h2>
+            <p className="text-lg text-black/70">
+              Choose the plan that fits your growth stage
+            </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="p-8 hover:shadow-xl transition-all duration-300 border-0 bg-white/80 backdrop-blur relative group">
-              <h3 className="text-2xl font-semibold mb-2 text-black">Starter</h3>
-              <div className="text-4xl font-bold mb-4 text-black">$39<span className="text-lg font-normal text-black/60">/mo</span></div>
+              <h3 className="text-2xl font-semibold mb-2 text-black">
+                Starter
+              </h3>
+              <div className="text-4xl font-bold mb-4 text-black">
+                $39
+                <span className="text-lg font-normal text-black/60">/mo</span>
+              </div>
               <p className="text-black/70 mb-6">Perfect for small SaaS</p>
               <div className="space-y-3 text-sm text-black/60">
                 <div className="flex items-center gap-2">
@@ -314,7 +355,7 @@ export default function Home() {
                 </div>
               </div>
             </Card>
-            
+
             <Card className="p-8 hover:shadow-2xl transition-all duration-300 border-2 border-primary bg-white relative transform scale-105 z-10">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <Badge className="px-4 py-1 shadow-md bg-primary text-white">
@@ -322,8 +363,13 @@ export default function Home() {
                   Most Popular
                 </Badge>
               </div>
-              <h3 className="text-2xl font-semibold mb-2 text-black mt-2">Growth</h3>
-              <div className="text-4xl font-bold mb-4 text-primary">$79<span className="text-lg font-normal text-black/60">/mo</span></div>
+              <h3 className="text-2xl font-semibold mb-2 text-black mt-2">
+                Growth
+              </h3>
+              <div className="text-4xl font-bold mb-4 text-primary">
+                $79
+                <span className="text-lg font-normal text-black/60">/mo</span>
+              </div>
               <p className="text-black/70 mb-6">For growing companies</p>
               <div className="space-y-3 text-sm text-black/60">
                 <div className="flex items-center gap-2">
@@ -344,10 +390,13 @@ export default function Home() {
                 </div>
               </div>
             </Card>
-            
+
             <Card className="p-8 hover:shadow-xl transition-all duration-300 border-0 bg-white/80 backdrop-blur relative group">
               <h3 className="text-2xl font-semibold mb-2 text-black">Scale</h3>
-              <div className="text-4xl font-bold mb-4 text-black">$149<span className="text-lg font-normal text-black/60">/mo</span></div>
+              <div className="text-4xl font-bold mb-4 text-black">
+                $149
+                <span className="text-lg font-normal text-black/60">/mo</span>
+              </div>
               <p className="text-black/70 mb-6">For larger teams</p>
               <div className="space-y-3 text-sm text-black/60">
                 <div className="flex items-center gap-2">
@@ -370,7 +419,11 @@ export default function Home() {
             </Card>
           </div>
           <Link href="/pricing">
-            <Button className="mt-12 shadow-md hover:shadow-lg transition-all duration-300" variant="outline" size="lg">
+            <Button
+              className="mt-12 shadow-md hover:shadow-lg transition-all duration-300"
+              variant="outline"
+              size="lg"
+            >
               View Full Pricing Details
             </Button>
           </Link>
@@ -386,17 +439,27 @@ export default function Home() {
               Start Tracking Your AI Visibility Today
             </h2>
             <p className="text-xl opacity-90 max-w-2xl mx-auto">
-              Join SaaS companies already improving their AI presence and staying ahead of the competition
+              Join SaaS companies already improving their AI presence and
+              staying ahead of the competition
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/signup">
-              <Button size="lg" variant="secondary" className="gap-2 shadow-lg hover:shadow-xl transition-all duration-300 px-8">
-                Start Free Trial <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              <Button
+                size="lg"
+                variant="secondary"
+                className="gap-2 shadow-lg hover:shadow-xl transition-all duration-300 px-8"
+              >
+                Start Free Trial{' '}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
             <Link href="/pricing">
-              <Button size="lg" variant="outline" className="gap-2 text-white border-white hover:bg-white hover:text-primary transition-all duration-300 px-8">
+              <Button
+                size="lg"
+                variant="outline"
+                className="gap-2 text-white border-white hover:bg-white hover:text-primary transition-all duration-300 px-8"
+              >
                 View Pricing
               </Button>
             </Link>
@@ -428,31 +491,77 @@ export default function Home() {
                 <span className="font-bold text-xl text-black">BrandLens</span>
               </div>
               <p className="text-black/70 text-sm">
-                Monitor your brand&apos;s AI visibility and stay ahead of the competition.
+                Monitor your brand&apos;s AI visibility and stay ahead of the
+                competition.
               </p>
             </div>
             <div className="space-y-3">
               <h4 className="font-semibold text-black">Product</h4>
               <div className="space-y-2 text-sm">
-                <Link href="/features" className="text-black/70 hover:text-primary transition-colors block">Features</Link>
-                <Link href="/pricing" className="text-black/70 hover:text-primary transition-colors block">Pricing</Link>
-                <Link href="/demo" className="text-black/70 hover:text-primary transition-colors block">Demo</Link>
+                <Link
+                  href="/features"
+                  className="text-black/70 hover:text-primary transition-colors block"
+                >
+                  Features
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="text-black/70 hover:text-primary transition-colors block"
+                >
+                  Pricing
+                </Link>
+                <Link
+                  href="/demo"
+                  className="text-black/70 hover:text-primary transition-colors block"
+                >
+                  Demo
+                </Link>
               </div>
             </div>
             <div className="space-y-3">
               <h4 className="font-semibold text-black">Company</h4>
               <div className="space-y-2 text-sm">
-                <Link href="/about" className="text-black/70 hover:text-primary transition-colors block">About</Link>
-                <Link href="/blog" className="text-black/70 hover:text-primary transition-colors block">Blog</Link>
-                <Link href="/careers" className="text-black/70 hover:text-primary transition-colors block">Careers</Link>
+                <Link
+                  href="/about"
+                  className="text-black/70 hover:text-primary transition-colors block"
+                >
+                  About
+                </Link>
+                <Link
+                  href="/blog"
+                  className="text-black/70 hover:text-primary transition-colors block"
+                >
+                  Blog
+                </Link>
+                <Link
+                  href="/careers"
+                  className="text-black/70 hover:text-primary transition-colors block"
+                >
+                  Careers
+                </Link>
               </div>
             </div>
             <div className="space-y-3">
               <h4 className="font-semibold text-black">Support</h4>
               <div className="space-y-2 text-sm">
-                <Link href="/help" className="text-black/70 hover:text-primary transition-colors block">Help Center</Link>
-                <Link href="/contact" className="text-black/70 hover:text-primary transition-colors block">Contact</Link>
-                <Link href="/privacy" className="text-black/70 hover:text-primary transition-colors block">Privacy</Link>
+                <Link
+                  href="/help"
+                  className="text-black/70 hover:text-primary transition-colors block"
+                >
+                  Help Center
+                </Link>
+                <Link
+                  href="/contact"
+                  className="text-black/70 hover:text-primary transition-colors block"
+                >
+                  Contact
+                </Link>
+                <Link
+                  href="/privacy"
+                  className="text-black/70 hover:text-primary transition-colors block"
+                >
+                  Privacy
+                </Link>
               </div>
             </div>
           </div>
@@ -461,9 +570,24 @@ export default function Home() {
               © 2024 BrandLens. All rights reserved.
             </p>
             <div className="flex items-center gap-4 text-sm text-black/60">
-              <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>
-              <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
-              <Link href="/cookies" className="hover:text-primary transition-colors">Cookies</Link>
+              <Link
+                href="/terms"
+                className="hover:text-primary transition-colors"
+              >
+                Terms
+              </Link>
+              <Link
+                href="/privacy"
+                className="hover:text-primary transition-colors"
+              >
+                Privacy
+              </Link>
+              <Link
+                href="/cookies"
+                className="hover:text-primary transition-colors"
+              >
+                Cookies
+              </Link>
             </div>
           </div>
         </div>

@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth/middleware';
 import { db } from '@/lib/db';
-import { projects, competitors, organizationMembers, users } from '@/lib/db/schema';
+import {
+  projects,
+  competitors,
+  organizationMembers,
+  users,
+} from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
 export async function POST(request: NextRequest) {
@@ -21,7 +26,10 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (!membership) {
-      return NextResponse.json({ error: 'No organization found' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'No organization found' },
+        { status: 400 }
+      );
     }
 
     // Extract domain from website with error handling
@@ -54,11 +62,18 @@ export async function POST(request: NextRequest) {
       .returning();
 
     // Add suggested competitors with error handling
-    if (analysisResult?.competitors && Array.isArray(analysisResult.competitors) && analysisResult.competitors.length > 0) {
+    if (
+      analysisResult?.competitors &&
+      Array.isArray(analysisResult.competitors) &&
+      analysisResult.competitors.length > 0
+    ) {
       try {
         const competitorData = analysisResult.competitors
           .slice(0, 5)
-          .filter((name: any) => name && typeof name === 'string' && name.trim().length > 0)
+          .filter(
+            (name: any) =>
+              name && typeof name === 'string' && name.trim().length > 0
+          )
           .map((name: string) => ({
             projectId: project.id,
             name: name.trim(),
@@ -79,7 +94,7 @@ export async function POST(request: NextRequest) {
       const { queries: queriesTable } = await import('@/lib/db/schema');
       const industry = analysisResult?.industry || 'business';
       const brandName = companyInfo.name;
-      
+
       const initialQueries = [
         {
           projectId: project.id,
@@ -145,7 +160,7 @@ export async function POST(request: NextRequest) {
       // Continue with successful onboarding even if queries can't start
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       projectId: project.id,
     });

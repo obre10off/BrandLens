@@ -6,7 +6,14 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
@@ -85,7 +92,9 @@ export default function SignupPage() {
                 56% cheaper than PromptWatch
               </Badge>
             </div>
-            <CardTitle className="text-2xl text-center">Create your account</CardTitle>
+            <CardTitle className="text-2xl text-center">
+              Create your account
+            </CardTitle>
             <CardDescription className="text-center">
               Start tracking your AI visibility in minutes
             </CardDescription>
@@ -137,7 +146,7 @@ export default function SignupPage() {
                   type="text"
                   placeholder="John Doe"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={e => setName(e.target.value)}
                   required
                   disabled={loading}
                 />
@@ -149,7 +158,7 @@ export default function SignupPage() {
                   type="email"
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
                   required
                   disabled={loading}
                 />
@@ -161,7 +170,7 @@ export default function SignupPage() {
                   type="password"
                   placeholder="Min 8 characters"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   required
                   minLength={8}
                   disabled={loading}
@@ -169,8 +178,11 @@ export default function SignupPage() {
               </div>
 
               <div className="rounded-lg bg-muted p-4 space-y-2">
-                {features.map((feature) => (
-                  <div key={feature} className="flex items-center gap-2 text-sm">
+                {features.map(feature => (
+                  <div
+                    key={feature}
+                    className="flex items-center gap-2 text-sm"
+                  >
                     <Check className="h-4 w-4 text-green-600" />
                     <span>{feature}</span>
                   </div>

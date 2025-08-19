@@ -2,7 +2,13 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { logger } from '@/lib/logger';
 
@@ -23,7 +29,10 @@ interface ErrorFallbackProps {
   resetError: () => void;
 }
 
-export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends React.Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
@@ -38,12 +47,16 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log error with structured logging
-    logger.error('React error boundary caught error', {
-      errorName: error.name,
-      errorMessage: error.message,
-      componentStack: errorInfo.componentStack,
-      errorStack: error.stack,
-    }, error);
+    logger.error(
+      'React error boundary caught error',
+      {
+        errorName: error.name,
+        errorMessage: error.message,
+        componentStack: errorInfo.componentStack,
+        errorStack: error.stack,
+      },
+      error
+    );
 
     // Call custom error handler if provided
     this.props.onError?.(error, errorInfo);
@@ -62,9 +75,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     if (this.state.hasError) {
       const FallbackComponent = this.props.fallback || DefaultErrorFallback;
       return (
-        <FallbackComponent 
-          error={this.state.error!} 
-          resetError={this.resetError} 
+        <FallbackComponent
+          error={this.state.error!}
+          resetError={this.resetError}
         />
       );
     }
@@ -89,25 +102,20 @@ function DefaultErrorFallback({ error, resetError }: ErrorFallbackProps) {
         <CardContent className="space-y-4">
           {process.env.NODE_ENV === 'development' && (
             <div className="rounded bg-gray-50 p-3">
-              <p className="text-sm font-medium text-gray-900">Error Details:</p>
+              <p className="text-sm font-medium text-gray-900">
+                Error Details:
+              </p>
               <p className="text-xs text-gray-600 mt-1 font-mono">
                 {error.message}
               </p>
             </div>
           )}
           <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
-            <Button 
-              onClick={resetError} 
-              className="flex-1"
-              variant="outline"
-            >
+            <Button onClick={resetError} className="flex-1" variant="outline">
               <RefreshCw className="mr-2 h-4 w-4" />
               Try Again
             </Button>
-            <Button 
-              onClick={() => window.location.reload()} 
-              className="flex-1"
-            >
+            <Button onClick={() => window.location.reload()} className="flex-1">
               Reload Page
             </Button>
           </div>
@@ -118,16 +126,24 @@ function DefaultErrorFallback({ error, resetError }: ErrorFallbackProps) {
 }
 
 // Query-specific error boundary for better UX
-export function QueryErrorBoundary({ children }: { children: React.ReactNode }) {
+export function QueryErrorBoundary({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <ErrorBoundary
       fallback={QueryErrorFallback}
       onError={(error, errorInfo) => {
-        logger.error('Query execution error boundary triggered', {
-          errorName: error.name,
-          errorMessage: error.message,
-          componentStack: errorInfo.componentStack,
-        }, error);
+        logger.error(
+          'Query execution error boundary triggered',
+          {
+            errorName: error.name,
+            errorMessage: error.message,
+            componentStack: errorInfo.componentStack,
+          },
+          error
+        );
       }}
     >
       {children}
@@ -144,14 +160,15 @@ function QueryErrorFallback({ error, resetError }: ErrorFallbackProps) {
           <div>
             <p className="font-medium">Query execution failed</p>
             <p className="text-sm text-red-600">
-              {error.message || 'An unexpected error occurred while running your query.'}
+              {error.message ||
+                'An unexpected error occurred while running your query.'}
             </p>
           </div>
         </div>
-        <Button 
-          onClick={resetError} 
-          variant="outline" 
-          size="sm" 
+        <Button
+          onClick={resetError}
+          variant="outline"
+          size="sm"
           className="mt-4"
         >
           <RefreshCw className="mr-2 h-4 w-4" />

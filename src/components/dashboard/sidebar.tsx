@@ -186,7 +186,7 @@ export function Sidebar({ className }: SidebarProps) {
           const data = await response.json();
           setProjectInfo(data);
         }
-        
+
         // Fetch all projects for the dropdown
         const projectsResponse = await fetch('/api/projects');
         if (projectsResponse.ok) {
@@ -201,13 +201,16 @@ export function Sidebar({ className }: SidebarProps) {
     };
 
     fetchProjectInfo();
-    
+
     // Load theme from localStorage with error handling
     try {
       const savedTheme = localStorage.getItem('theme') as 'light' | 'dark';
       if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
         setTheme(savedTheme);
-        document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+        document.documentElement.classList.toggle(
+          'dark',
+          savedTheme === 'dark'
+        );
       }
     } catch (error) {
       console.warn('Failed to load theme from localStorage:', error);
@@ -232,7 +235,7 @@ export function Sidebar({ className }: SidebarProps) {
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
-    
+
     try {
       localStorage.setItem('theme', newTheme);
       document.documentElement.classList.toggle('dark', newTheme === 'dark');
@@ -244,7 +247,7 @@ export function Sidebar({ className }: SidebarProps) {
   const toggleSidebar = () => {
     const newCollapsed = !isCollapsed;
     setIsCollapsed(newCollapsed);
-    
+
     try {
       localStorage.setItem('sidebar-collapsed', JSON.stringify(newCollapsed));
     } catch (error) {
@@ -262,26 +265,38 @@ export function Sidebar({ className }: SidebarProps) {
   };
 
   return (
-    <aside className={cn(
-      'flex flex-col bg-white border-r border-gray-200 transition-all duration-300',
-      isCollapsed ? 'w-16' : 'w-64',
-      className
-    )}>
+    <aside
+      className={cn(
+        'flex flex-col bg-white border-r border-gray-200 transition-all duration-300',
+        isCollapsed ? 'w-16' : 'w-64',
+        className
+      )}
+    >
       {/* Logo and Project Selector */}
       <div className="p-3 sm:p-4 border-b border-gray-200">
         <div className="flex items-center justify-between mb-3 sm:mb-4">
-          <Link href="/dashboard" className={cn("flex items-center gap-2", isCollapsed && "justify-center w-full")}>
+          <Link
+            href="/dashboard"
+            className={cn(
+              'flex items-center gap-2',
+              isCollapsed && 'justify-center w-full'
+            )}
+          >
             <div className="h-7 w-7 sm:h-8 sm:w-8 bg-primary rounded-lg flex items-center justify-center">
               <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             </div>
-            {!isCollapsed && <span className="font-bold text-lg sm:text-xl text-black">brandlens</span>}
+            {!isCollapsed && (
+              <span className="font-bold text-lg sm:text-xl text-black">
+                brandlens
+              </span>
+            )}
           </Link>
-          
+
           {/* Collapse Toggle Button */}
           <button
             onClick={toggleSidebar}
             className="p-1.5 hover:bg-gray-100 rounded-md transition-colors"
-            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {isCollapsed ? (
               <ChevronRight className="h-4 w-4 text-gray-600" />
@@ -290,7 +305,7 @@ export function Sidebar({ className }: SidebarProps) {
             )}
           </button>
         </div>
-        
+
         {/* Enhanced Project Selector */}
         {!loading && projectInfo && !isCollapsed && (
           <DropdownMenu>
@@ -302,25 +317,29 @@ export function Sidebar({ className }: SidebarProps) {
                       {projectInfo.brandName.slice(0, 2).toUpperCase()}
                     </span>
                   </div>
-                  <span className="font-medium text-black truncate">{projectInfo.brandName}</span>
+                  <span className="font-medium text-black truncate">
+                    {projectInfo.brandName}
+                  </span>
                 </div>
                 <ChevronDown className="h-4 w-4 text-gray-500 flex-shrink-0" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent 
-              className="w-64 !bg-white border-2 border-gray-400 shadow-2xl rounded-xl z-[9999] p-2" 
+            <DropdownMenuContent
+              className="w-64 !bg-white border-2 border-gray-400 shadow-2xl rounded-xl z-[9999] p-2"
               align="start"
               sideOffset={8}
               alignOffset={4}
               style={{ backgroundColor: '#ffffff', opacity: 1 }}
             >
               <DropdownMenuLabel className="px-4 py-3 !bg-white rounded-lg">
-                <span className="text-sm font-semibold text-gray-900">Switch Project</span>
+                <span className="text-sm font-semibold text-gray-900">
+                  Switch Project
+                </span>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {projects.map((project) => (
-                <DropdownMenuItem 
-                  key={project.id} 
+              {projects.map(project => (
+                <DropdownMenuItem
+                  key={project.id}
                   className="cursor-pointer px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg"
                 >
                   <div className="flex items-center gap-3">
@@ -329,7 +348,9 @@ export function Sidebar({ className }: SidebarProps) {
                         {project.brandName.slice(0, 2).toUpperCase()}
                       </span>
                     </div>
-                    <span className="truncate text-sm text-gray-900">{project.brandName}</span>
+                    <span className="truncate text-sm text-gray-900">
+                      {project.brandName}
+                    </span>
                   </div>
                 </DropdownMenuItem>
               ))}
@@ -352,8 +373,8 @@ export function Sidebar({ className }: SidebarProps) {
                 {section.label}
               </h3>
             )}
-            <ul className={cn("px-1 sm:px-3 space-y-1", isCollapsed && "px-2")}>
-              {section.items.map((item) => {
+            <ul className={cn('px-1 sm:px-3 space-y-1', isCollapsed && 'px-2')}>
+              {section.items.map(item => {
                 const isActive = pathname === item.href;
                 return (
                   <li key={item.href}>
@@ -362,8 +383,8 @@ export function Sidebar({ className }: SidebarProps) {
                       className={cn(
                         'flex items-center rounded-lg text-sm transition-all duration-200',
                         'hover:bg-gray-100 hover:shadow-sm',
-                        isCollapsed 
-                          ? 'justify-center p-2 w-10 h-10 mx-auto' 
+                        isCollapsed
+                          ? 'justify-center p-2 w-10 h-10 mx-auto'
                           : 'gap-2 sm:gap-3 px-2 sm:px-3 py-2',
                         isActive
                           ? 'bg-primary text-white font-medium shadow-sm'
@@ -372,7 +393,9 @@ export function Sidebar({ className }: SidebarProps) {
                       title={isCollapsed ? item.title : undefined}
                     >
                       <item.icon className="h-4 w-4 flex-shrink-0" />
-                      {!isCollapsed && <span className="truncate">{item.title}</span>}
+                      {!isCollapsed && (
+                        <span className="truncate">{item.title}</span>
+                      )}
                     </Link>
                   </li>
                 );
@@ -388,7 +411,9 @@ export function Sidebar({ className }: SidebarProps) {
           <div className="mb-3">
             <div className="flex justify-between text-xs text-gray-500 mb-1">
               <span>Prompt Responses</span>
-              <span>{projectInfo.queriesUsed || 0} / {projectInfo.queriesLimit}</span>
+              <span>
+                {projectInfo.queriesUsed || 0} / {projectInfo.queriesLimit}
+              </span>
             </div>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
@@ -399,7 +424,7 @@ export function Sidebar({ className }: SidebarProps) {
               />
             </div>
           </div>
-          
+
           <div className="mb-4">
             <div className="flex justify-between text-xs text-gray-500 mb-1">
               <span>Analytics Events</span>
@@ -422,7 +447,7 @@ export function Sidebar({ className }: SidebarProps) {
       {/* Bottom Navigation */}
       <div className="p-2 sm:p-3 border-t border-gray-200">
         <ul className="space-y-1">
-          {bottomItems.map((item) => {
+          {bottomItems.map(item => {
             const isActive = pathname === item.href;
             return (
               <li key={item.href}>
@@ -431,8 +456,8 @@ export function Sidebar({ className }: SidebarProps) {
                   className={cn(
                     'flex items-center rounded-lg text-sm transition-all duration-200',
                     'hover:bg-gray-100 hover:shadow-sm',
-                    isCollapsed 
-                      ? 'justify-center p-2 w-10 h-10 mx-auto' 
+                    isCollapsed
+                      ? 'justify-center p-2 w-10 h-10 mx-auto'
                       : 'gap-2 sm:gap-3 px-2 sm:px-3 py-2',
                     isActive
                       ? 'bg-primary text-white font-medium shadow-sm'
@@ -441,7 +466,9 @@ export function Sidebar({ className }: SidebarProps) {
                   title={isCollapsed ? item.title : undefined}
                 >
                   <item.icon className="h-4 w-4 flex-shrink-0" />
-                  {!isCollapsed && <span className="truncate">{item.title}</span>}
+                  {!isCollapsed && (
+                    <span className="truncate">{item.title}</span>
+                  )}
                 </Link>
               </li>
             );
@@ -454,17 +481,23 @@ export function Sidebar({ className }: SidebarProps) {
         <div className="p-2 sm:p-4 border-t border-gray-200">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className={cn(
-                "flex items-center text-sm text-left hover:bg-gray-100 rounded-lg transition-all duration-200 hover:shadow-sm",
-                isCollapsed 
-                  ? "justify-center p-2 w-10 h-10 mx-auto" 
-                  : "w-full gap-2 sm:gap-3 px-2 sm:px-3 py-2"
-              )}
-              title={isCollapsed ? session.user.name || session.user.email : undefined}
+              <button
+                className={cn(
+                  'flex items-center text-sm text-left hover:bg-gray-100 rounded-lg transition-all duration-200 hover:shadow-sm',
+                  isCollapsed
+                    ? 'justify-center p-2 w-10 h-10 mx-auto'
+                    : 'w-full gap-2 sm:gap-3 px-2 sm:px-3 py-2'
+                )}
+                title={
+                  isCollapsed
+                    ? session.user.name || session.user.email
+                    : undefined
+                }
               >
                 <div className="h-7 w-7 sm:h-8 sm:w-8 bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-xs font-semibold text-primary">
-                    {session.user.name?.[0] || session.user.email[0].toUpperCase()}
+                    {session.user.name?.[0] ||
+                      session.user.email[0].toUpperCase()}
                   </span>
                 </div>
                 {!isCollapsed && (
@@ -473,16 +506,18 @@ export function Sidebar({ className }: SidebarProps) {
                       <p className="text-sm font-medium text-black truncate">
                         {session.user.name || 'User'}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">{session.user.email}</p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {session.user.email}
+                      </p>
                     </div>
                     <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 flex-shrink-0" />
                   </>
                 )}
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent 
-              className="w-64 mb-3 !bg-white border-2 border-gray-400 shadow-2xl rounded-xl z-[9999] p-2" 
-              align="start" 
+            <DropdownMenuContent
+              className="w-64 mb-3 !bg-white border-2 border-gray-400 shadow-2xl rounded-xl z-[9999] p-2"
+              align="start"
               side="top"
               sideOffset={12}
               alignOffset={8}
@@ -490,14 +525,18 @@ export function Sidebar({ className }: SidebarProps) {
             >
               <DropdownMenuLabel className="px-4 py-3 !bg-white rounded-lg">
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-gray-900">{session.user.name || 'User'}</p>
-                  <p className="text-xs text-gray-600 break-all">{session.user.email}</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {session.user.name || 'User'}
+                  </p>
+                  <p className="text-xs text-gray-600 break-all">
+                    {session.user.email}
+                  </p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              
-              <DropdownMenuItem 
-                onClick={toggleTheme} 
+
+              <DropdownMenuItem
+                onClick={toggleTheme}
                 className="cursor-pointer px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg"
               >
                 {theme === 'light' ? (
@@ -505,25 +544,29 @@ export function Sidebar({ className }: SidebarProps) {
                 ) : (
                   <Sun className="h-4 w-4 mr-3 text-gray-600" />
                 )}
-                <span className="text-sm text-gray-900">{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+                <span className="text-sm text-gray-900">
+                  {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+                </span>
               </DropdownMenuItem>
-              
+
               <DropdownMenuSeparator />
-              
+
               <DropdownMenuItem asChild className="cursor-pointer">
-                <Link 
-                  href="/terms" 
-                  target="_blank" 
+                <Link
+                  href="/terms"
+                  target="_blank"
                   className="flex items-center px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg"
                 >
                   <ExternalLink className="h-4 w-4 mr-3 text-gray-600" />
-                  <span className="text-sm text-gray-900">Terms of Service</span>
+                  <span className="text-sm text-gray-900">
+                    Terms of Service
+                  </span>
                 </Link>
               </DropdownMenuItem>
-              
+
               <DropdownMenuItem asChild className="cursor-pointer">
-                <Link 
-                  href="/privacy" 
+                <Link
+                  href="/privacy"
                   target="_blank"
                   className="flex items-center px-4 py-2.5 !bg-white hover:!bg-gray-100 transition-colors focus:!bg-gray-100 rounded-lg"
                 >
@@ -531,10 +574,10 @@ export function Sidebar({ className }: SidebarProps) {
                   <span className="text-sm text-gray-900">Privacy Policy</span>
                 </Link>
               </DropdownMenuItem>
-              
+
               <DropdownMenuSeparator />
-              
-              <DropdownMenuItem 
+
+              <DropdownMenuItem
                 onClick={handleSignOut}
                 className="cursor-pointer px-4 py-2.5 !bg-white text-red-600 hover:!bg-red-50 hover:text-red-700 focus:!bg-red-50 focus:text-red-700 transition-colors rounded-lg"
               >

@@ -1,6 +1,11 @@
 import { Worker, Job } from 'bullmq';
 import { db } from '@/lib/db';
-import { projects, projectQueries, brandMentions, llmResponses } from '@/lib/db/schema';
+import {
+  projects,
+  projectQueries,
+  brandMentions,
+  llmResponses,
+} from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { OpenAI } from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
@@ -33,7 +38,11 @@ export function createBrandMonitoringWorker() {
   return new Worker(
     'brand-monitoring',
     async (job: Job<BrandMonitoringJob>) => {
-      const { projectId, queryIds, models = ['gpt-4o-mini', 'claude-3-haiku'] } = job.data;
+      const {
+        projectId,
+        queryIds,
+        models = ['gpt-4o-mini', 'claude-3-haiku'],
+      } = job.data;
 
       // Get project details
       const project = await db.query.projects.findFirst({
@@ -41,12 +50,12 @@ export function createBrandMonitoringWorker() {
         with: {
           competitors: true,
           queries: {
-            where: queryIds ? 
-              and(
-                eq(projectQueries.isActive, true),
-                eq(projectQueries.id, queryIds[0]) // Simplified for now
-              ) : 
-              eq(projectQueries.isActive, true),
+            where: queryIds
+              ? and(
+                  eq(projectQueries.isActive, true),
+                  eq(projectQueries.id, queryIds[0]) // Simplified for now
+                )
+              : eq(projectQueries.isActive, true),
           },
         },
       });
@@ -79,7 +88,11 @@ export function createBrandMonitoringWorker() {
         const cached = await RedisCache.get(cacheKey);
         if (cached) {
           // Type assertion for cached result
-          const cachedResult = cached as { queryId: string; model: string; mentions: MentionResult[] };
+          const cachedResult = cached as {
+            queryId: string;
+            model: string;
+            mentions: MentionResult[];
+          };
           results.push(cachedResult);
           continue;
         }
@@ -104,10 +117,7 @@ export function createBrandMonitoringWorker() {
             });
 
             // Extract and store mentions
-            const mentions = extractMentions(
-              response.text,
-              brandsToTrack
-            );
+            const mentions = extractMentions(response.text, brandsToTrack);
 
             for (const mention of mentions) {
               await db.insert(brandMentions).values({
@@ -130,17 +140,16 @@ export function createBrandMonitoringWorker() {
               model,
               mentions,
             };
-            
+
             results.push(result);
 
             // Cache the result
-            await RedisCache.set(
-              cacheKey,
-              result,
-              CACHE_TTL.queryResult
-            );
+            await RedisCache.set(cacheKey, result, CACHE_TTL.queryResult);
           } catch (error) {
-            console.error(`Error processing query ${query.id} with ${model}:`, error);
+            console.error(
+              `Error processing query ${query.id} with ${model}:`,
+              error
+            );
             // Continue with next model
           }
         }
@@ -186,7 +195,7 @@ Provide balanced, factual information.`;
 
   if (model.startsWith('gpt')) {
     const completion = await openai.chat.completions.create({
-      model: model,
+      model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: query },
@@ -205,13 +214,11 @@ Provide balanced, factual information.`;
     };
   } else if (model.startsWith('claude')) {
     const message = await anthropic.messages.create({
-      model: model,
+      model,
       max_tokens: 1000,
       temperature: 0.7,
       system: systemPrompt,
-      messages: [
-        { role: 'user', content: query },
-      ],
+      messages: [{ role: 'user', content: query }],
     });
 
     return {
@@ -221,7 +228,8 @@ Provide balanced, factual information.`;
         usage: {
           prompt_tokens: message.usage.input_tokens,
           completion_tokens: message.usage.output_tokens,
-          total_tokens: message.usage.input_tokens + message.usage.output_tokens,
+          total_tokens:
+            message.usage.input_tokens + message.usage.output_tokens,
         },
         latency: Date.now() - startTime,
       },
@@ -278,15 +286,30 @@ function determineMentionType(
   context: string
 ): 'direct' | 'feature' | 'competitive' {
   const contextLower = context.toLowerCase();
-  
+
   // Check for competitive mentions
-  const competitiveKeywords = ['unlike', 'compared to', 'versus', 'vs', 'better than', 'worse than', 'alternative to'];
+  const competitiveKeywords = [
+    'unlike',
+    'compared to',
+    'versus',
+    'vs',
+    'better than',
+    'worse than',
+    'alternative to',
+  ];
   if (competitiveKeywords.some(keyword => contextLower.includes(keyword))) {
     return 'competitive';
   }
 
   // Check for feature mentions
-  const featureKeywords = ['feature', 'capability', 'integration', 'functionality', 'supports', 'offers'];
+  const featureKeywords = [
+    'feature',
+    'capability',
+    'integration',
+    'functionality',
+    'supports',
+    'offers',
+  ];
   if (featureKeywords.some(keyword => contextLower.includes(keyword))) {
     return 'feature';
   }
@@ -294,43 +317,74 @@ function determineMentionType(
   return 'direct';
 }
 
-function analyzeSentiment(
-  context: string
-): { sentiment: 'positive' | 'neutral' | 'negative'; score: number } {
+function analyzeSentiment(context: string): {
+  sentiment: 'positive' | 'neutral' | 'negative';
+  score: number;
+} {
   const contextLower = context.toLowerCase();
 
   const positiveWords = [
-    'excellent', 'great', 'best', 'amazing', 'fantastic', 'superior',
-    'recommended', 'preferred', 'popular', 'powerful', 'reliable',
-    'efficient', 'innovative', 'leading', 'top-rated', 'favorite',
+    'excellent',
+    'great',
+    'best',
+    'amazing',
+    'fantastic',
+    'superior',
+    'recommended',
+    'preferred',
+    'popular',
+    'powerful',
+    'reliable',
+    'efficient',
+    'innovative',
+    'leading',
+    'top-rated',
+    'favorite',
   ];
 
   const negativeWords = [
-    'poor', 'bad', 'worst', 'terrible', 'inferior', 'disappointing',
-    'unreliable', 'difficult', 'complex', 'expensive', 'limited',
-    'outdated', 'slow', 'buggy', 'frustrating', 'lacking',
+    'poor',
+    'bad',
+    'worst',
+    'terrible',
+    'inferior',
+    'disappointing',
+    'unreliable',
+    'difficult',
+    'complex',
+    'expensive',
+    'limited',
+    'outdated',
+    'slow',
+    'buggy',
+    'frustrating',
+    'lacking',
   ];
 
   let positiveCount = 0;
   let negativeCount = 0;
 
   for (const word of positiveWords) {
-    if (contextLower.includes(word)) positiveCount++;
+    if (contextLower.includes(word)) {
+      positiveCount++;
+    }
   }
 
   for (const word of negativeWords) {
-    if (contextLower.includes(word)) negativeCount++;
+    if (contextLower.includes(word)) {
+      negativeCount++;
+    }
   }
 
   if (positiveCount > negativeCount) {
     return {
       sentiment: 'positive',
-      score: Math.min(1, 0.5 + (positiveCount * 0.1)),
+      score: Math.min(1, 0.5 + positiveCount * 0.1),
     };
   } else if (negativeCount > positiveCount) {
     return {
       sentiment: 'negative',
-      score: Math.max(0, 0.5 - (negativeCount * 0.1)),
+      score: Math.max(0, 0.5 - negativeCount * 0.1),
     };
   } else {
     return {

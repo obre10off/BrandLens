@@ -1,6 +1,12 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 interface SentimentData {
@@ -18,22 +24,34 @@ interface SentimentChartProps {
 export default function SentimentChart({ data }: SentimentChartProps) {
   // Calculate the max value for scaling
   const maxValue = Math.max(...data.map(d => d.total), 1);
-  
+
   // Get sentiment trend
   const getTrend = () => {
-    if (data.length < 2) return null;
-    
+    if (data.length < 2) {
+      return null;
+    }
+
     const recent = data.slice(-7);
     const older = data.slice(-14, -7);
-    
-    const recentPositiveRate = recent.reduce((sum, d) => sum + (d.positive / Math.max(d.total, 1)), 0) / recent.length;
-    const olderPositiveRate = older.reduce((sum, d) => sum + (d.positive / Math.max(d.total, 1)), 0) / older.length;
-    
-    const change = ((recentPositiveRate - olderPositiveRate) / Math.max(olderPositiveRate, 0.01)) * 100;
-    
-    return { change, trend: change > 5 ? 'up' : change < -5 ? 'down' : 'neutral' };
+
+    const recentPositiveRate =
+      recent.reduce((sum, d) => sum + d.positive / Math.max(d.total, 1), 0) /
+      recent.length;
+    const olderPositiveRate =
+      older.reduce((sum, d) => sum + d.positive / Math.max(d.total, 1), 0) /
+      older.length;
+
+    const change =
+      ((recentPositiveRate - olderPositiveRate) /
+        Math.max(olderPositiveRate, 0.01)) *
+      100;
+
+    return {
+      change,
+      trend: change > 5 ? 'up' : change < -5 ? 'down' : 'neutral',
+    };
   };
-  
+
   const trend = getTrend();
 
   return (
@@ -55,11 +73,15 @@ export default function SentimentChart({ data }: SentimentChartProps) {
               ) : (
                 <Minus className="h-5 w-5 text-gray-600" />
               )}
-              <span className={`text-sm font-medium ${
-                trend.trend === 'up' ? 'text-green-600' : 
-                trend.trend === 'down' ? 'text-red-600' : 
-                'text-gray-600'
-              }`}>
+              <span
+                className={`text-sm font-medium ${
+                  trend.trend === 'up'
+                    ? 'text-green-600'
+                    : trend.trend === 'down'
+                      ? 'text-red-600'
+                      : 'text-gray-600'
+                }`}
+              >
                 {Math.abs(trend.change).toFixed(1)}%
               </span>
             </div>
@@ -75,7 +97,7 @@ export default function SentimentChart({ data }: SentimentChartProps) {
               const positiveHeight = (day.positive / maxValue) * 100;
               const neutralHeight = (day.neutral / maxValue) * 100;
               const negativeHeight = (day.negative / maxValue) * 100;
-              
+
               return (
                 <div
                   key={index}
@@ -89,7 +111,9 @@ export default function SentimentChart({ data }: SentimentChartProps) {
                     {negativeHeight > 0 && (
                       <div
                         className="w-full bg-red-500"
-                        style={{ height: `${(negativeHeight / height) * 100}%` }}
+                        style={{
+                          height: `${(negativeHeight / height) * 100}%`,
+                        }}
                       />
                     )}
                     {neutralHeight > 0 && (
@@ -101,7 +125,9 @@ export default function SentimentChart({ data }: SentimentChartProps) {
                     {positiveHeight > 0 && (
                       <div
                         className="w-full bg-green-500"
-                        style={{ height: `${(positiveHeight / height) * 100}%` }}
+                        style={{
+                          height: `${(positiveHeight / height) * 100}%`,
+                        }}
                       />
                     )}
                   </div>
@@ -109,7 +135,7 @@ export default function SentimentChart({ data }: SentimentChartProps) {
               );
             })}
           </div>
-          
+
           {/* Legend */}
           <div className="flex items-center justify-center gap-6 pt-4">
             <div className="flex items-center gap-2">

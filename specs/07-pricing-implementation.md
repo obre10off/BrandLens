@@ -3,6 +3,7 @@
 ## Pricing Tiers
 
 ### Tier Structure
+
 ```typescript
 export const pricingTiers = {
   starter: {
@@ -66,6 +67,7 @@ export const pricingTiers = {
 ## Stripe Integration
 
 ### Setup
+
 ```typescript
 // src/lib/stripe.ts
 import Stripe from 'stripe';
@@ -81,7 +83,7 @@ export async function setupStripeProducts() {
     name: 'BrandLens',
     description: 'AI Brand Monitoring for SaaS',
   });
-  
+
   // Create prices for each tier
   const starterPrice = await stripe.prices.create({
     product: product.id,
@@ -92,7 +94,7 @@ export async function setupStripeProducts() {
     },
     nickname: 'Starter',
   });
-  
+
   const growthPrice = await stripe.prices.create({
     product: product.id,
     unit_amount: 7900, // $79.00
@@ -102,7 +104,7 @@ export async function setupStripeProducts() {
     },
     nickname: 'Growth',
   });
-  
+
   const scalePrice = await stripe.prices.create({
     product: product.id,
     unit_amount: 14900, // $149.00
@@ -112,7 +114,7 @@ export async function setupStripeProducts() {
     },
     nickname: 'Scale',
   });
-  
+
   console.log('Stripe prices created:', {
     starter: starterPrice.id,
     growth: growthPrice.id,
@@ -122,20 +124,21 @@ export async function setupStripeProducts() {
 ```
 
 ### Checkout Flow
+
 ```typescript
 // src/app/api/checkout/route.ts
 export async function POST(request: Request) {
   const session = await auth.api.getSession({ headers: request.headers });
-  if (!session) return new Response("Unauthorized", { status: 401 });
-  
+  if (!session) return new Response('Unauthorized', { status: 401 });
+
   const { tier, organizationId } = await request.json();
-  
+
   // Validate tier
   const selectedTier = pricingTiers[tier];
   if (!selectedTier) {
-    return new Response("Invalid tier", { status: 400 });
+    return new Response('Invalid tier', { status: 400 });
   }
-  
+
   // Check for existing subscription
   const existingSubscription = await db.query.subscriptions.findFirst({
     where: and(
@@ -143,19 +146,21 @@ export async function POST(request: Request) {
       eq(subscriptions.status, 'active')
     ),
   });
-  
+
   if (existingSubscription) {
     // Handle upgrade/downgrade
     return handleSubscriptionChange(existingSubscription, selectedTier);
   }
-  
+
   // Create checkout session
   const checkoutSession = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
-    line_items: [{
-      price: selectedTier.priceId,
-      quantity: 1,
-    }],
+    line_items: [
+      {
+        price: selectedTier.priceId,
+        quantity: 1,
+      },
+    ],
     mode: 'subscription',
     success_url: `${process.env.NEXT_PUBLIC_URL}/dashboard?checkout=success`,
     cancel_url: `${process.env.NEXT_PUBLIC_URL}/pricing?checkout=cancelled`,
@@ -173,48 +178,50 @@ export async function POST(request: Request) {
     },
     allow_promotion_codes: true,
   });
-  
+
   return Response.json({ url: checkoutSession.url });
 }
 ```
 
 ### Subscription Management
+
 ```typescript
 // src/lib/subscription-manager.ts
 export class SubscriptionManager {
   async handleCheckoutComplete(session: Stripe.Checkout.Session) {
     const { organizationId, userId, tier } = session.metadata!;
-    
+
     // Create or update subscription record
-    await db.insert(subscriptions).values({
-      organizationId,
-      stripeCustomerId: session.customer as string,
-      stripeSubscriptionId: session.subscription as string,
-      stripePriceId: session.line_items?.data[0].price?.id,
-      status: 'active',
-      currentPeriodStart: new Date(),
-      currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    }).onConflictDoUpdate({
-      target: subscriptions.organizationId,
-      set: {
+    await db
+      .insert(subscriptions)
+      .values({
+        organizationId,
+        stripeCustomerId: session.customer as string,
         stripeSubscriptionId: session.subscription as string,
+        stripePriceId: session.line_items?.data[0].price?.id,
         status: 'active',
-        updatedAt: new Date(),
-      },
-    });
-    
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      })
+      .onConflictDoUpdate({
+        target: subscriptions.organizationId,
+        set: {
+          stripeSubscriptionId: session.subscription as string,
+          status: 'active',
+          updatedAt: new Date(),
+        },
+      });
+
     // Send welcome email
     await sendWelcomeEmail(userId, tier);
-    
+
     // Initialize usage tracking
     await initializeUsageTracking(organizationId);
   }
-  
-  async handleSubscriptionUpdate(
-    subscription: Stripe.Subscription
-  ) {
+
+  async handleSubscriptionUpdate(subscription: Stripe.Subscription) {
     const orgId = subscription.metadata.organizationId;
-    
+
     await db
       .update(subscriptions)
       .set({
@@ -225,14 +232,12 @@ export class SubscriptionManager {
         updatedAt: new Date(),
       })
       .where(eq(subscriptions.stripeSubscriptionId, subscription.id));
-    
+
     // Update organization limits based on new plan
     await updateOrganizationLimits(orgId, subscription);
   }
-  
-  async handleSubscriptionDeleted(
-    subscription: Stripe.Subscription
-  ) {
+
+  async handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     await db
       .update(subscriptions)
       .set({
@@ -240,7 +245,7 @@ export class SubscriptionManager {
         updatedAt: new Date(),
       })
       .where(eq(subscriptions.stripeSubscriptionId, subscription.id));
-    
+
     // Deactivate organization features
     await deactivateOrganization(subscription.metadata.organizationId);
   }
@@ -250,6 +255,7 @@ export class SubscriptionManager {
 ## Usage Tracking & Limits
 
 ### Usage Enforcement
+
 ```typescript
 export class UsageTracker {
   async checkUsageLimit(
@@ -258,11 +264,11 @@ export class UsageTracker {
   ): Promise<boolean> {
     const subscription = await this.getActiveSubscription(organizationId);
     if (!subscription) return false;
-    
+
     const tier = this.getTierFromPrice(subscription.stripePriceId);
     const limits = pricingTiers[tier].features;
     const usage = await this.getCurrentUsage(organizationId);
-    
+
     switch (resource) {
       case 'queries':
         return usage.queriesUsed < limits.trackedQueries;
@@ -274,14 +280,14 @@ export class UsageTracker {
         return false;
     }
   }
-  
+
   async incrementUsage(
     organizationId: string,
     resource: ResourceType,
     amount: number = 1
   ) {
     const period = this.getCurrentPeriod();
-    
+
     await db
       .insert(usageTracking)
       .values({
@@ -297,7 +303,7 @@ export class UsageTracker {
         },
       });
   }
-  
+
   private getCurrentPeriod(): string {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -311,9 +317,9 @@ export async function checkUsageMiddleware(
 ) {
   const session = await auth.api.getSession({ headers: request.headers });
   const orgId = await getOrganizationId(session.user.id);
-  
+
   const hasCapacity = await usageTracker.checkUsageLimit(orgId, resource);
-  
+
   if (!hasCapacity) {
     return new Response(
       JSON.stringify({
@@ -328,28 +334,29 @@ export async function checkUsageMiddleware(
 ```
 
 ### Billing Portal
+
 ```typescript
 // src/app/api/billing/portal/route.ts
 export async function POST(request: Request) {
   const session = await auth.api.getSession({ headers: request.headers });
-  if (!session) return new Response("Unauthorized", { status: 401 });
-  
+  if (!session) return new Response('Unauthorized', { status: 401 });
+
   const org = await db.query.organizations.findFirst({
     where: eq(organizations.ownerId, session.user.id),
     with: {
       subscription: true,
     },
   });
-  
+
   if (!org?.subscription?.stripeCustomerId) {
-    return new Response("No active subscription", { status: 404 });
+    return new Response('No active subscription', { status: 404 });
   }
-  
+
   const portalSession = await stripe.billingPortal.sessions.create({
     customer: org.subscription.stripeCustomerId,
     return_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/settings`,
   });
-  
+
   return Response.json({ url: portalSession.url });
 }
 ```
@@ -357,15 +364,16 @@ export async function POST(request: Request) {
 ## Trial Management
 
 ### Free Trial Implementation
+
 ```typescript
 export class TrialManager {
   static TRIAL_DAYS = 7;
   static TRIAL_QUERIES = 25;
-  
+
   async startTrial(organizationId: string) {
     const trialEnd = new Date();
     trialEnd.setDate(trialEnd.getDate() + TrialManager.TRIAL_DAYS);
-    
+
     await db.insert(trials).values({
       organizationId,
       status: 'active',
@@ -374,33 +382,33 @@ export class TrialManager {
       queriesUsed: 0,
       queriesLimit: TrialManager.TRIAL_QUERIES,
     });
-    
+
     // Schedule trial ending reminder
     await emailQueue.add('trial-ending-reminder', {
       organizationId,
       sendAt: new Date(trialEnd.getTime() - 2 * 24 * 60 * 60 * 1000), // 2 days before
     });
   }
-  
+
   async checkTrialStatus(organizationId: string): Promise<TrialStatus> {
     const trial = await db.query.trials.findFirst({
       where: eq(trials.organizationId, organizationId),
     });
-    
+
     if (!trial) return { status: 'no_trial' };
-    
+
     if (new Date() > trial.endDate) {
       return { status: 'expired', daysUsed: TrialManager.TRIAL_DAYS };
     }
-    
+
     if (trial.queriesUsed >= trial.queriesLimit) {
       return { status: 'limit_reached', queriesUsed: trial.queriesUsed };
     }
-    
+
     const daysLeft = Math.ceil(
       (trial.endDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000)
     );
-    
+
     return {
       status: 'active',
       daysLeft,
@@ -417,13 +425,13 @@ export class TrialManager {
 export function PricingCards() {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
-  
+
   const handleSelectPlan = async (tier: string) => {
     if (!user) {
       router.push('/signup');
       return;
     }
-    
+
     setLoading(true);
     try {
       const response = await fetch('/api/checkout', {
@@ -431,7 +439,7 @@ export function PricingCards() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tier, organizationId: user.organizationId }),
       });
-      
+
       const { url } = await response.json();
       window.location.href = url;
     } catch (error) {
@@ -440,7 +448,7 @@ export function PricingCards() {
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
       {Object.entries(pricingTiers).map(([key, tier]) => (
@@ -466,27 +474,27 @@ export class RevenueAnalytics {
     const activeSubscriptions = await db.query.subscriptions.findMany({
       where: eq(subscriptions.status, 'active'),
     });
-    
+
     let mrr = 0;
     for (const sub of activeSubscriptions) {
       const tier = this.getTierFromPriceId(sub.stripePriceId);
       mrr += pricingTiers[tier].price;
     }
-    
+
     return mrr;
   }
-  
+
   async getChurnRate(period: DateRange): Promise<number> {
     const startCount = await this.getActiveSubscriptionCount(period.start);
     const canceledCount = await this.getCanceledCount(period);
-    
+
     return startCount > 0 ? (canceledCount / startCount) * 100 : 0;
   }
-  
+
   async getCustomerLifetimeValue(): Promise<number> {
     const avgMonthlyRevenue = await this.getAverageRevenuePerUser();
     const avgLifetimeMonths = await this.getAverageCustomerLifetime();
-    
+
     return avgMonthlyRevenue * avgLifetimeMonths;
   }
 }

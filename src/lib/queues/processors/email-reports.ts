@@ -1,7 +1,13 @@
 import { Worker, Job } from 'bullmq';
 import { Resend } from 'resend';
 import { db } from '@/lib/db';
-import { projects, brandMentions, emailQueue, organizations, users } from '@/lib/db/schema';
+import {
+  projects,
+  brandMentions,
+  emailQueue,
+  organizations,
+  users,
+} from '@/lib/db/schema';
 import { eq, and, gte, sql, desc } from 'drizzle-orm';
 import { RedisCache, CACHE_PREFIXES } from '@/lib/redis';
 
@@ -114,7 +120,9 @@ export function createEmailReportWorker() {
     },
     {
       connection: {
-        host: process.env.UPSTASH_REDIS_REST_URL!.replace('https://', '').split('.')[0],
+        host: process.env
+          .UPSTASH_REDIS_REST_URL!.replace('https://', '')
+          .split('.')[0],
         port: 6379,
         password: process.env.UPSTASH_REDIS_REST_TOKEN,
         tls: {},
@@ -128,17 +136,22 @@ export function createEmailReportWorker() {
   );
 }
 
-async function getProjectMetrics(projectId: string, period: { start: Date; end: Date }) {
+async function getProjectMetrics(
+  projectId: string,
+  period: { start: Date; end: Date }
+) {
   // Check cache first
   const cacheKey = `${CACHE_PREFIXES.projectMetrics}${projectId}:${period.start.toISOString()}`;
   const cached = await RedisCache.get(cacheKey);
-  if (cached) return cached;
+  if (cached) {
+    return cached;
+  }
 
   // Get current period mentions
   const currentMentions = await db.query.brandMentions.findMany({
     where: and(
       eq(brandMentions.projectId, projectId),
-      gte(brandMentions.createdAt, period.start),
+      gte(brandMentions.createdAt, period.start)
     ),
   });
 
@@ -150,7 +163,7 @@ async function getProjectMetrics(projectId: string, period: { start: Date; end: 
   const previousMentions = await db.query.brandMentions.findMany({
     where: and(
       eq(brandMentions.projectId, projectId),
-      gte(brandMentions.createdAt, previousPeriodStart),
+      gte(brandMentions.createdAt, previousPeriodStart)
     ),
   });
 
@@ -158,7 +171,10 @@ async function getProjectMetrics(projectId: string, period: { start: Date; end: 
   const metrics = {
     totalMentions: currentMentions.length,
     previousMentions: previousMentions.length,
-    mentionChange: calculatePercentageChange(previousMentions.length, currentMentions.length),
+    mentionChange: calculatePercentageChange(
+      previousMentions.length,
+      currentMentions.length
+    ),
     sentimentBreakdown: {
       positive: currentMentions.filter(m => m.sentiment === 'positive').length,
       neutral: currentMentions.filter(m => m.sentiment === 'neutral').length,
@@ -177,21 +193,31 @@ async function getProjectMetrics(projectId: string, period: { start: Date; end: 
 }
 
 function calculatePercentageChange(previous: number, current: number): number {
-  if (previous === 0) return current > 0 ? 100 : 0;
+  if (previous === 0) {
+    return current > 0 ? 100 : 0;
+  }
   return Math.round(((current - previous) / previous) * 100);
 }
 
 function calculateAverageSentiment(mentions: any[]): number {
-  if (mentions.length === 0) return 0;
-  const sum = mentions.reduce((acc, m) => acc + parseFloat(m.sentimentScore || '0.5'), 0);
+  if (mentions.length === 0) {
+    return 0;
+  }
+  const sum = mentions.reduce(
+    (acc, m) => acc + parseFloat(m.sentimentScore || '0.5'),
+    0
+  );
   return Math.round((sum / mentions.length) * 100);
 }
 
 async function getTopPerformingQueries(projectId: string, mentions: any[]) {
-  const queryMentions = mentions.reduce((acc, mention) => {
-    acc[mention.queryId] = (acc[mention.queryId] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const queryMentions = mentions.reduce(
+    (acc, mention) => {
+      acc[mention.queryId] = (acc[mention.queryId] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 
   const topQueryIds = Object.entries(queryMentions)
     .sort(([, a], [, b]) => b - a)
@@ -201,7 +227,10 @@ async function getTopPerformingQueries(projectId: string, mentions: any[]) {
   const queries = await db.query.projectQueries.findMany({
     where: and(
       eq(brandMentions.projectId, projectId),
-      sql`id IN (${sql.join(topQueryIds.map(id => sql`${id}`), sql`, `)})`
+      sql`id IN (${sql.join(
+        topQueryIds.map(id => sql`${id}`),
+        sql`, `
+      )})`
     ),
   });
 
@@ -211,15 +240,23 @@ async function getTopPerformingQueries(projectId: string, mentions: any[]) {
   }));
 }
 
-async function getCompetitorComparison(projectId: string, period: { start: Date; end: Date }) {
+async function getCompetitorComparison(
+  projectId: string,
+  period: { start: Date; end: Date }
+) {
   const project = await db.query.projects.findFirst({
     where: eq(projects.id, projectId),
     with: { competitors: true },
   });
 
-  if (!project) return [];
+  if (!project) {
+    return [];
+  }
 
-  const allBrands = [project.brandName, ...project.competitors.map(c => c.name)];
+  const allBrands = [
+    project.brandName,
+    ...project.competitors.map(c => c.name),
+  ];
   const brandMentionCounts: Record<string, number> = {};
 
   for (const brand of allBrands) {
@@ -230,10 +267,10 @@ async function getCompetitorComparison(projectId: string, period: { start: Date;
         and(
           eq(brandMentions.projectId, projectId),
           eq(brandMentions.brandName, brand),
-          gte(brandMentions.createdAt, period.start),
+          gte(brandMentions.createdAt, period.start)
         )
       );
-    
+
     brandMentionCounts[brand] = count[0]?.count || 0;
   }
 
@@ -247,10 +284,13 @@ async function getCompetitorComparison(projectId: string, period: { start: Date;
 }
 
 function groupMentionsByModel(mentions: any[]) {
-  return mentions.reduce((acc, mention) => {
-    acc[mention.llmModel] = (acc[mention.llmModel] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  return mentions.reduce(
+    (acc, mention) => {
+      acc[mention.llmModel] = (acc[mention.llmModel] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 }
 
 function generateInsights(metrics: any, project: any) {
@@ -278,14 +318,15 @@ function generateInsights(metrics: any, project: any) {
   } else if (metrics.averageSentiment < 40) {
     insights.push({
       type: 'warning',
-      message: 'Your brand sentiment could use improvement. Review negative mentions.',
+      message:
+        'Your brand sentiment could use improvement. Review negative mentions.',
     });
   }
 
   // Competitor insight
   const topCompetitor = metrics.competitorComparison.find(c => !c.isOwnBrand);
   const ownBrand = metrics.competitorComparison.find(c => c.isOwnBrand);
-  
+
   if (ownBrand && topCompetitor && ownBrand.mentions < topCompetitor.mentions) {
     insights.push({
       type: 'warning',
@@ -311,8 +352,12 @@ function generateRecommendations(insights: any[]) {
   insights.forEach(insight => {
     if (insight.type === 'warning') {
       if (insight.message.includes('decreased')) {
-        recommendations.push('Consider creating new content targeting high-value queries');
-        recommendations.push('Update your product pages with AI-friendly descriptions');
+        recommendations.push(
+          'Consider creating new content targeting high-value queries'
+        );
+        recommendations.push(
+          'Update your product pages with AI-friendly descriptions'
+        );
       }
       if (insight.message.includes('sentiment')) {
         recommendations.push('Address negative feedback in your product');
@@ -320,7 +365,9 @@ function generateRecommendations(insights: any[]) {
       }
       if (insight.message.includes('getting more AI mentions')) {
         recommendations.push('Analyze competitor content strategies');
-        recommendations.push('Optimize for queries where competitors are winning');
+        recommendations.push(
+          'Optimize for queries where competitors are winning'
+        );
       }
     }
   });
@@ -335,12 +382,18 @@ function generateRecommendations(insights: any[]) {
   return recommendations.slice(0, 3); // Limit to 3 recommendations
 }
 
-function formatPeriod(period: { start: Date; end: Date }, type: string): string {
+function formatPeriod(
+  period: { start: Date; end: Date },
+  type: string
+): string {
   const options: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric' };
   if (type === 'weekly') {
     return `Week of ${period.start.toLocaleDateString('en-US', options)}`;
   } else {
-    return period.start.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    return period.start.toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric',
+    });
   }
 }
 
@@ -396,15 +449,23 @@ function generateEmailHTML(data: any): string {
       
       <div class="insights">
         <h3>Key Insights</h3>
-        ${data.insights.map(insight => `
+        ${data.insights
+          .map(
+            insight => `
           <p>${insight.type === 'positive' ? '✅' : insight.type === 'warning' ? '⚠️' : 'ℹ️'} ${insight.message}</p>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
       
       <h3>Recommended Actions</h3>
-      ${data.recommendations.map(rec => `
+      ${data.recommendations
+        .map(
+          rec => `
         <div class="recommendation">💡 ${rec}</div>
-      `).join('')}
+      `
+        )
+        .join('')}
       
       <div style="text-align: center;">
         <a href="${data.dashboardUrl}" class="button">View Full Report</a>

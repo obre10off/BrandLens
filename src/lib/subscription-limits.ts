@@ -44,15 +44,15 @@ export async function checkQueryLimit(
   currentMonthQueries: number
 ): Promise<{ allowed: boolean; limit: number; remaining: number }> {
   const limit = planLimits[plan].queriesPerMonth;
-  
+
   // Unlimited queries for scale plan
   if (limit === -1) {
     return { allowed: true, limit: -1, remaining: -1 };
   }
-  
+
   const allowed = currentMonthQueries < limit;
   const remaining = Math.max(0, limit - currentMonthQueries);
-  
+
   return { allowed, limit, remaining };
 }
 
@@ -64,12 +64,12 @@ export function checkCompetitorLimit(
   currentCompetitors: number
 ): boolean {
   const limit = planLimits[plan].competitors;
-  
+
   // Unlimited competitors for scale plan
   if (limit === -1) {
     return true;
   }
-  
+
   return currentCompetitors < limit;
 }
 

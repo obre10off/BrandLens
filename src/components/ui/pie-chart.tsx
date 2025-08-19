@@ -18,19 +18,19 @@ interface PieChartProps {
   centerContent?: React.ReactNode;
 }
 
-export function PieChart({ 
-  data, 
-  size = 200, 
-  className, 
+export function PieChart({
+  data,
+  size = 200,
+  className,
   showLabels = false,
-  centerContent 
+  centerContent,
 }: PieChartProps) {
   // Calculate percentages and cumulative values
   const total = data.reduce((sum, item) => sum + item.value, 0);
-  
+
   const processedData = data.map(item => ({
     ...item,
-    percentage: (item.value / total) * 100
+    percentage: (item.value / total) * 100,
   }));
 
   // Create pie segments
@@ -41,13 +41,14 @@ export function PieChart({
   let cumulativePercentage = 0;
   const segments = processedData.map((item, index) => {
     const startAngle = (cumulativePercentage / 100) * 360 - 90; // Start from top
-    const endAngle = ((cumulativePercentage + item.percentage) / 100) * 360 - 90;
-    
+    const endAngle =
+      ((cumulativePercentage + item.percentage) / 100) * 360 - 90;
+
     const x1 = center + radius * Math.cos((startAngle * Math.PI) / 180);
     const y1 = center + radius * Math.sin((startAngle * Math.PI) / 180);
     const x2 = center + radius * Math.cos((endAngle * Math.PI) / 180);
     const y2 = center + radius * Math.sin((endAngle * Math.PI) / 180);
-    
+
     const x3 = center + innerRadius * Math.cos((endAngle * Math.PI) / 180);
     const y3 = center + innerRadius * Math.sin((endAngle * Math.PI) / 180);
     const x4 = center + innerRadius * Math.cos((startAngle * Math.PI) / 180);
@@ -60,7 +61,7 @@ export function PieChart({
       `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`, // Arc to end point on outer circle
       `L ${x3} ${y3}`, // Line to end point on inner circle
       `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x4} ${y4}`, // Arc to start point on inner circle
-      'Z' // Close path
+      'Z', // Close path
     ].join(' ');
 
     cumulativePercentage += item.percentage;
@@ -69,7 +70,7 @@ export function PieChart({
       ...item,
       pathData,
       startAngle,
-      endAngle
+      endAngle,
     };
   });
 
@@ -86,28 +87,28 @@ export function PieChart({
           </g>
         ))}
       </svg>
-      
+
       {/* Center content */}
       {centerContent && (
-        <div 
+        <div
           className="absolute inset-0 flex items-center justify-center"
-          style={{ 
-            width: innerRadius * 2, 
-            height: innerRadius * 2, 
-            left: center - innerRadius, 
-            top: center - innerRadius 
+          style={{
+            width: innerRadius * 2,
+            height: innerRadius * 2,
+            left: center - innerRadius,
+            top: center - innerRadius,
           }}
         >
           {centerContent}
         </div>
       )}
-      
+
       {/* Legend */}
       {showLabels && (
         <div className="mt-4 space-y-2">
           {processedData.map((item, index) => (
             <div key={index} className="flex items-center gap-2 text-sm">
-              <div 
+              <div
                 className="w-3 h-3 rounded"
                 style={{ backgroundColor: item.color }}
               />
@@ -131,22 +132,24 @@ interface DonutChartProps {
   centerLabel?: string;
 }
 
-export function DonutChart({ 
-  data, 
-  size = 120, 
+export function DonutChart({
+  data,
+  size = 120,
   className,
   centerValue,
-  centerLabel
+  centerLabel,
 }: DonutChartProps) {
   const centerContent = centerValue && (
     <div className="text-center">
       <div className="text-lg font-bold text-gray-800">{centerValue}</div>
-      {centerLabel && <div className="text-xs text-gray-600 -mt-1">{centerLabel}</div>}
+      {centerLabel && (
+        <div className="text-xs text-gray-600 -mt-1">{centerLabel}</div>
+      )}
     </div>
   );
 
   return (
-    <PieChart 
+    <PieChart
       data={data}
       size={size}
       className={className}

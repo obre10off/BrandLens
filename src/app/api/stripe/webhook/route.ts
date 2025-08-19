@@ -18,10 +18,7 @@ export async function POST(req: NextRequest) {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err) {
     console.error('Webhook signature verification failed:', err);
-    return NextResponse.json(
-      { error: 'Invalid signature' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
   try {
@@ -86,7 +83,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   // Get price details
   const priceId = subscription.items.data[0].price.id;
   let plan: 'starter' | 'growth' | 'scale' = 'starter';
-  
+
   if (priceId === process.env.STRIPE_PRICE_GROWTH) {
     plan = 'growth';
   } else if (priceId === process.env.STRIPE_PRICE_SCALE) {
@@ -156,7 +153,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
   // Get price details
   const priceId = subscription.items.data[0].price.id;
   let plan: 'starter' | 'growth' | 'scale' = 'starter';
-  
+
   if (priceId === process.env.STRIPE_PRICE_GROWTH) {
     plan = 'growth';
   } else if (priceId === process.env.STRIPE_PRICE_SCALE) {
@@ -173,8 +170,8 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
       currentPeriodStart: new Date(subscription.current_period_start * 1000),
       currentPeriodEnd: new Date(subscription.current_period_end * 1000),
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      canceledAt: subscription.canceled_at 
-        ? new Date(subscription.canceled_at * 1000) 
+      canceledAt: subscription.canceled_at
+        ? new Date(subscription.canceled_at * 1000)
         : null,
       updatedAt: new Date(),
     })
@@ -194,7 +191,9 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
-  if (!invoice.subscription) return;
+  if (!invoice.subscription) {
+    return;
+  }
 
   // Update subscription status to active if it was past_due
   await db
@@ -203,11 +202,15 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
       status: 'active',
       updatedAt: new Date(),
     })
-    .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription as string));
+    .where(
+      eq(subscriptions.stripeSubscriptionId, invoice.subscription as string)
+    );
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
-  if (!invoice.subscription) return;
+  if (!invoice.subscription) {
+    return;
+  }
 
   // Update subscription status
   await db
@@ -216,7 +219,9 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
       status: 'past_due',
       updatedAt: new Date(),
     })
-    .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription as string));
+    .where(
+      eq(subscriptions.stripeSubscriptionId, invoice.subscription as string)
+    );
 
   // TODO: Send email notification about failed payment
 }

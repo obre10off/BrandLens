@@ -3,7 +3,7 @@ import { logger } from './logger';
 
 interface RateLimitConfig {
   window: number; // in seconds
-  max: number;    // max requests per window
+  max: number; // max requests per window
   identifier: string;
   skipSuccessfulRequestsOnError?: boolean;
 }
@@ -22,7 +22,12 @@ export class EnhancedRateLimiter {
    * Sliding window rate limiter with Redis
    */
   static async checkLimit(config: RateLimitConfig): Promise<RateLimitResult> {
-    const { identifier, max, window, skipSuccessfulRequestsOnError = true } = config;
+    const {
+      identifier,
+      max,
+      window,
+      skipSuccessfulRequestsOnError = true,
+    } = config;
     const key = `${CACHE_PREFIXES.rateLimit}${identifier}`;
     const now = Date.now();
     const windowStart = now - window * 1000;
@@ -30,20 +35,23 @@ export class EnhancedRateLimiter {
     try {
       // Use Redis pipeline for atomic operations
       const pipeline = redis.pipeline();
-      
+
       // Remove expired entries
       pipeline.zremrangebyscore(key, 0, windowStart);
-      
+
       // Count current entries in window
       pipeline.zcard(key);
-      
+
       // Execute pipeline
       const results = await pipeline.exec();
-      const count = results?.[1]?.[1] as number || 0;
+      const count = (results?.[1]?.[1] as number) || 0;
 
       if (count < max) {
         // Add current request to sorted set
-        await redis.zadd(key, { score: now, member: `${now}-${Math.random()}` });
+        await redis.zadd(key, {
+          score: now,
+          member: `${now}-${Math.random()}`,
+        });
         await redis.expire(key, window + 1); // +1 for buffer
 
         return {
@@ -57,7 +65,8 @@ export class EnhancedRateLimiter {
 
       // Get oldest entry to calculate retry time
       const oldestEntries = await redis.zrange(key, 0, 0, { withScores: true });
-      const oldestScore = oldestEntries.length > 0 ? oldestEntries[0].score! : now;
+      const oldestScore =
+        oldestEntries.length > 0 ? oldestEntries[0].score! : now;
       const retryAfter = Math.ceil((oldestScore + window * 1000 - now) / 1000);
 
       return {
@@ -68,13 +77,16 @@ export class EnhancedRateLimiter {
         reset: Math.floor((oldestScore + window * 1000) / 1000),
         retryAfter: Math.max(retryAfter, 1),
       };
-
     } catch (error) {
-      logger.error('Enhanced rate limiter operation failed', {
-        identifier,
-        window,
-        max,
-      }, error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        'Enhanced rate limiter operation failed',
+        {
+          identifier,
+          window,
+          max,
+        },
+        error instanceof Error ? error : new Error(String(error))
+      );
 
       // Fail open vs fail closed decision
       if (skipSuccessfulRequestsOnError) {
@@ -107,7 +119,7 @@ export class EnhancedRateLimiter {
   ): Promise<RateLimitResult> {
     // Check all tiers and return the most restrictive
     const results = await Promise.all(
-      tiers.map((tier, index) => 
+      tiers.map((tier, index) =>
         this.checkLimit({
           identifier: `${identifier}:tier${index}`,
           window: tier.window,
@@ -117,10 +129,11 @@ export class EnhancedRateLimiter {
     );
 
     // Find the most restrictive result
-    const restrictive = results.find(r => !r.allowed) || 
-                       results.reduce((prev, curr) => 
-                         curr.remaining < prev.remaining ? curr : prev
-                       );
+    const restrictive =
+      results.find(r => !r.allowed) ||
+      results.reduce((prev, curr) =>
+        curr.remaining < prev.remaining ? curr : prev
+      );
 
     return restrictive;
   }
@@ -134,11 +147,11 @@ export class EnhancedRateLimiter {
     subscriptionTier: 'trial' | 'starter' | 'growth' | 'scale' = 'trial'
   ): Promise<RateLimitResult> {
     const limits = this.getTierLimits(subscriptionTier);
-    
+
     return this.checkMultiTierLimit(`user:${userId}:org:${organizationId}`, [
-      { window: 60, max: limits.perMinute },     // Burst protection
-      { window: 3600, max: limits.perHour },    // Hourly limit
-      { window: 86400, max: limits.perDay },    // Daily limit
+      { window: 60, max: limits.perMinute }, // Burst protection
+      { window: 3600, max: limits.perHour }, // Hourly limit
+      { window: 86400, max: limits.perDay }, // Daily limit
     ]);
   }
 
@@ -204,15 +217,22 @@ export class EnhancedRateLimiter {
     try {
       const pattern = `${CACHE_PREFIXES.rateLimit}${identifier}*`;
       const keys = await redis.keys(pattern);
-      
+
       if (keys.length > 0) {
         await redis.del(...keys);
-        logger.info('Rate limit reset', { identifier, keysRemoved: keys.length });
+        logger.info('Rate limit reset', {
+          identifier,
+          keysRemoved: keys.length,
+        });
       }
-      
+
       return true;
     } catch (error) {
-      logger.error('Failed to reset rate limit', { identifier }, error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        'Failed to reset rate limit',
+        { identifier },
+        error instanceof Error ? error : new Error(String(error))
+      );
       return false;
     }
   }

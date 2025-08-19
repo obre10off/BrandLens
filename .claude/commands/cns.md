@@ -1,3 +1,3 @@
 # Alias
 
-cns = continue with next step 
+cns = continue with next step

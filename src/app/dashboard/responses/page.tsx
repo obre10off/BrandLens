@@ -4,19 +4,32 @@ import { getUserOrganizations } from '@/lib/organizations';
 import { db } from '@/lib/db';
 import { brandMentions, queryExecutions, queries } from '@/lib/db/schema';
 import { eq, desc, and } from 'drizzle-orm';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, TrendingDown, Minus, MessageSquare, Calendar, BarChart3 } from 'lucide-react';
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  MessageSquare,
+  Calendar,
+  BarChart3,
+} from 'lucide-react';
 import Link from 'next/link';
 
 export default async function ResponsesPage({
-  searchParams
+  searchParams,
 }: {
-  searchParams: Promise<{ executionId?: string }>
+  searchParams: Promise<{ executionId?: string }>;
 }) {
   const session = await getServerSession();
-  
+
   if (!session) {
     redirect('/login');
   }
@@ -49,7 +62,10 @@ export default async function ResponsesPage({
       query: queries,
     })
     .from(brandMentions)
-    .leftJoin(queryExecutions, eq(brandMentions.queryExecutionId, queryExecutions.id))
+    .leftJoin(
+      queryExecutions,
+      eq(brandMentions.queryExecutionId, queryExecutions.id)
+    )
     .leftJoin(queries, eq(queryExecutions.queryId, queries.id))
     .where(whereClause)
     .orderBy(desc(brandMentions.createdAt))
@@ -90,10 +106,9 @@ export default async function ResponsesPage({
       <div>
         <h1 className="text-3xl font-bold mb-2 text-black">Brand Mentions</h1>
         <p className="text-black">
-          {executionId 
+          {executionId
             ? 'Mentions from selected query execution'
-            : 'All brand mentions across AI platforms'
-          }
+            : 'All brand mentions across AI platforms'}
         </p>
       </div>
 
@@ -101,59 +116,75 @@ export default async function ResponsesPage({
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-black">Total Mentions</CardTitle>
+            <CardTitle className="text-sm font-medium text-black">
+              Total Mentions
+            </CardTitle>
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-black">{sentimentStats.total}</div>
+            <div className="text-2xl font-bold text-black">
+              {sentimentStats.total}
+            </div>
             <p className="text-xs text-black">Found in queries</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-black">Positive</CardTitle>
+            <CardTitle className="text-sm font-medium text-black">
+              Positive
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-black">{sentimentStats.positive}</div>
+            <div className="text-2xl font-bold text-black">
+              {sentimentStats.positive}
+            </div>
             <p className="text-xs text-black">
-              {sentimentStats.total > 0 
+              {sentimentStats.total > 0
                 ? `${Math.round((sentimentStats.positive / sentimentStats.total) * 100)}%`
-                : '0%'
-              } of mentions
+                : '0%'}{' '}
+              of mentions
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-black">Neutral</CardTitle>
+            <CardTitle className="text-sm font-medium text-black">
+              Neutral
+            </CardTitle>
             <Minus className="h-4 w-4 text-gray-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-black">{sentimentStats.neutral}</div>
+            <div className="text-2xl font-bold text-black">
+              {sentimentStats.neutral}
+            </div>
             <p className="text-xs text-black">
-              {sentimentStats.total > 0 
+              {sentimentStats.total > 0
                 ? `${Math.round((sentimentStats.neutral / sentimentStats.total) * 100)}%`
-                : '0%'
-              } of mentions
+                : '0%'}{' '}
+              of mentions
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-black">Negative</CardTitle>
+            <CardTitle className="text-sm font-medium text-black">
+              Negative
+            </CardTitle>
             <TrendingDown className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-black">{sentimentStats.negative}</div>
+            <div className="text-2xl font-bold text-black">
+              {sentimentStats.negative}
+            </div>
             <p className="text-xs text-black">
-              {sentimentStats.total > 0 
+              {sentimentStats.total > 0
                 ? `${Math.round((sentimentStats.negative / sentimentStats.total) * 100)}%`
-                : '0%'
-              } of mentions
+                : '0%'}{' '}
+              of mentions
             </p>
           </CardContent>
         </Card>
@@ -183,18 +214,21 @@ export default async function ResponsesPage({
             <div className="text-center py-8 text-black">
               <p className="text-sm mb-4">No mentions found yet</p>
               <Link href="/dashboard/queries">
-                <Button variant="outline">
-                  Run Your First Query
-                </Button>
+                <Button variant="outline">Run Your First Query</Button>
               </Link>
             </div>
           ) : (
             <div className="space-y-4">
               {mentions.map(({ mention, query }) => (
-                <div key={mention.id} className="border rounded-lg overflow-hidden">
+                <div
+                  key={mention.id}
+                  className="border rounded-lg overflow-hidden"
+                >
                   <div className="p-4">
                     <div className="flex items-start gap-4">
-                      <div className={`h-10 w-10 rounded-full ${getSentimentColor(mention.sentiment)} flex items-center justify-center flex-shrink-0`}>
+                      <div
+                        className={`h-10 w-10 rounded-full ${getSentimentColor(mention.sentiment)} flex items-center justify-center flex-shrink-0`}
+                      >
                         {getSentimentIcon(mention.sentiment)}
                       </div>
                       <div className="flex-1 space-y-2">
@@ -209,17 +243,19 @@ export default async function ResponsesPage({
                               </p>
                             )}
                           </div>
-                          <Badge 
+                          <Badge
                             variant={
-                              mention.sentiment === 'positive' ? 'default' :
-                              mention.sentiment === 'negative' ? 'destructive' :
-                              'secondary'
+                              mention.sentiment === 'positive'
+                                ? 'default'
+                                : mention.sentiment === 'negative'
+                                  ? 'destructive'
+                                  : 'secondary'
                             }
                           >
                             {mention.sentiment}
                           </Badge>
                         </div>
-                        
+
                         <div className="flex items-center gap-4 text-xs text-black">
                           <span className="flex items-center gap-1">
                             <BarChart3 className="h-3 w-3" />
@@ -242,16 +278,28 @@ export default async function ResponsesPage({
 
                         {mention.metadata && (
                           <div className="flex flex-wrap gap-2 mt-2">
-                            {mention.metadata.competitors?.map((competitor: string) => (
-                              <Badge key={competitor} variant="outline" className="text-xs">
-                                vs {competitor}
-                              </Badge>
-                            ))}
-                            {mention.metadata.features?.map((feature: string) => (
-                              <Badge key={feature} variant="secondary" className="text-xs">
-                                {feature}
-                              </Badge>
-                            ))}
+                            {mention.metadata.competitors?.map(
+                              (competitor: string) => (
+                                <Badge
+                                  key={competitor}
+                                  variant="outline"
+                                  className="text-xs"
+                                >
+                                  vs {competitor}
+                                </Badge>
+                              )
+                            )}
+                            {mention.metadata.features?.map(
+                              (feature: string) => (
+                                <Badge
+                                  key={feature}
+                                  variant="secondary"
+                                  className="text-xs"
+                                >
+                                  {feature}
+                                </Badge>
+                              )
+                            )}
                           </div>
                         )}
                       </div>

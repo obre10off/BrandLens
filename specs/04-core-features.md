@@ -3,45 +3,49 @@
 ## 1. Brand Mention Tracking
 
 ### Overview
+
 Track how ChatGPT and Claude mention your brand across 50+ pre-built SaaS queries. Automated weekly scans with intelligent mention detection and sentiment analysis.
 
 ### Implementation Details
 
 #### Query Execution Flow
+
 ```typescript
 interface QueryExecutor {
   // 1. Get active queries for project
   getActiveQueries(projectId: string): Query[];
-  
+
   // 2. Generate prompts with brand context
   generatePrompts(queries: Query[], brandName: string): Prompt[];
-  
+
   // 3. Execute across LLMs
   executeLLMQueries(prompts: Prompt[]): Promise<LLMResponse[]>;
-  
+
   // 4. Parse and store responses
   processResponses(responses: LLMResponse[]): Promise<BrandMention[]>;
 }
 ```
 
 #### Mention Detection Algorithm
+
 ```typescript
 class MentionDetector {
   // Direct mentions: "Slack is the best..."
   detectDirectMentions(text: string, brandName: string): Mention[];
-  
+
   // Feature mentions: "real-time messaging like in Slack"
   detectFeatureMentions(text: string, brandFeatures: string[]): Mention[];
-  
+
   // Competitive mentions: "Unlike Slack, Teams offers..."
   detectCompetitiveMentions(text: string, competitors: string[]): Mention[];
-  
+
   // Sentiment analysis using simple keyword matching for MVP
   analyzeSentiment(context: string): 'positive' | 'neutral' | 'negative';
 }
 ```
 
 #### Pre-built Query Categories
+
 1. **General Comparison**: "best [category] software 2024"
 2. **Use Case Specific**: "best [category] for [use case]"
 3. **Feature Focused**: "[feature] tools for [industry]"
@@ -51,6 +55,7 @@ class MentionDetector {
 ### User Experience
 
 #### Dashboard View
+
 ```
 ┌─────────────────────────────────────────┐
 │  Your Brand Mentions (Last 30 Days)     │
@@ -71,11 +76,13 @@ class MentionDetector {
 ## 2. Competitor Analysis
 
 ### Overview
+
 Compare your brand's AI visibility against up to 5 competitors. See who's winning the AI mention battle and identify opportunities.
 
 ### Features
 
 #### Share of Voice
+
 ```typescript
 interface ShareOfVoice {
   brand: string;
@@ -88,17 +95,18 @@ interface ShareOfVoice {
 function calculateShareOfVoice(mentions: BrandMention[]): ShareOfVoice[] {
   const brandCounts = groupBy(mentions, 'brandName');
   const total = mentions.length;
-  
+
   return Object.entries(brandCounts).map(([brand, brandMentions]) => ({
     brand,
     mentionCount: brandMentions.length,
     percentage: (brandMentions.length / total) * 100,
-    trend: calculateTrend(brand, previousPeriod)
+    trend: calculateTrend(brand, previousPeriod),
   }));
 }
 ```
 
 #### Competitive Positioning Matrix
+
 ```
          Positive Sentiment →
     ┌────────────────────────────┐
@@ -114,6 +122,7 @@ function calculateShareOfVoice(mentions: BrandMention[]): ShareOfVoice[] {
 ```
 
 #### Gap Analysis
+
 - Queries where competitors appear but you don't
 - Features competitors are known for that you aren't
 - Integration mentions you're missing
@@ -121,6 +130,7 @@ function calculateShareOfVoice(mentions: BrandMention[]): ShareOfVoice[] {
 ### Implementation
 
 #### Competitor Tracking
+
 ```typescript
 class CompetitorTracker {
   // Auto-suggest competitors based on domain
@@ -129,17 +139,17 @@ class CompetitorTracker {
     const category = await detectCategory(domain);
     return getTopCompetitorsInCategory(category);
   }
-  
+
   // Track mentions across all competitors
   async trackAllMentions(projectId: string): Promise<CompetitorData[]> {
     const competitors = await getProjectCompetitors(projectId);
     const mentions = await getMentionsForBrands([...competitors, ownBrand]);
-    
+
     return competitors.map(competitor => ({
       name: competitor.name,
       mentions: filterMentions(mentions, competitor.name),
       sentiment: calculateAverageSentiment(mentions),
-      queries: getUniqueQueries(mentions)
+      queries: getUniqueQueries(mentions),
     }));
   }
 }
@@ -148,11 +158,13 @@ class CompetitorTracker {
 ## 3. Dashboard & Visualizations
 
 ### Overview
+
 Clean, actionable dashboard showing key metrics and trends. Built for quick insights, not data overload.
 
 ### Key Sections
 
 #### Metrics Overview
+
 ```typescript
 interface DashboardMetrics {
   totalMentions: number;
@@ -186,6 +198,7 @@ interface DashboardMetrics {
 ### Technical Implementation
 
 #### Real-time Updates
+
 ```typescript
 // Use Server-Sent Events for live updates
 export async function GET(request: Request) {
@@ -195,19 +208,19 @@ export async function GET(request: Request) {
         const updates = await getLatestMentions();
         controller.enqueue(`data: ${JSON.stringify(updates)}\n\n`);
       }, 30000); // Every 30 seconds
-      
+
       request.signal.addEventListener('abort', () => {
         clearInterval(interval);
         controller.close();
       });
     },
   });
-  
+
   return new Response(stream, {
     headers: {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
+      Connection: 'keep-alive',
     },
   });
 }
@@ -216,6 +229,7 @@ export async function GET(request: Request) {
 ## 4. Email Reports
 
 ### Overview
+
 Weekly email summaries delivered every Monday at 9 AM. Actionable insights without overwhelming data.
 
 ### Email Structure
@@ -256,23 +270,28 @@ The BrandLens Team
 ### Implementation
 
 #### Email Queue System
+
 ```typescript
 class EmailReportService {
   async queueWeeklyReports() {
     const activeProjects = await getActiveProjects();
-    
+
     for (const project of activeProjects) {
-      await emailQueue.add('weekly-report', {
-        projectId: project.id,
-        recipientEmail: project.ownerEmail,
-        reportPeriod: getLastWeekPeriod(),
-      }, {
-        delay: getNextMondayDelay(),
-        attempts: 3,
-      });
+      await emailQueue.add(
+        'weekly-report',
+        {
+          projectId: project.id,
+          recipientEmail: project.ownerEmail,
+          reportPeriod: getLastWeekPeriod(),
+        },
+        {
+          delay: getNextMondayDelay(),
+          attempts: 3,
+        }
+      );
     }
   }
-  
+
   async generateReport(projectId: string, period: DateRange) {
     const metrics = await calculateWeeklyMetrics(projectId, period);
     const insights = await generateInsights(metrics);
@@ -281,13 +300,14 @@ class EmailReportService {
       insights,
       recommendations: generateRecommendations(insights),
     });
-    
+
     return html;
   }
 }
 ```
 
 ### Customization Options
+
 - Choose email frequency (weekly/bi-weekly)
 - Select which metrics to include
 - Set mention threshold alerts
@@ -296,18 +316,21 @@ class EmailReportService {
 ## MVP Feature Priorities
 
 ### Phase 1 (Launch)
+
 1. Basic mention tracking (ChatGPT + Claude)
 2. Simple sentiment analysis
 3. Competitor comparison
 4. Email reports
 
 ### Phase 2 (Post-Launch)
+
 1. Advanced sentiment analysis
 2. Custom query builder
 3. Slack notifications
 4. API access
 
 ### Phase 3 (Growth)
+
 1. More LLM platforms
 2. Real-time monitoring
 3. Content recommendations

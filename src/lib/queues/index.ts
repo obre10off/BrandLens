@@ -5,19 +5,25 @@ export { createEmailReportWorker } from './processors/email-reports';
 // Helper to start all workers (for development)
 export async function startWorkers() {
   if (process.env.NODE_ENV === 'production') {
-    console.warn('Workers should be started in separate processes in production');
+    console.warn(
+      'Workers should be started in separate processes in production'
+    );
     return;
   }
 
-  const { createBrandMonitoringWorker } = await import('./processors/brand-monitoring');
-  const { createEmailReportWorker } = await import('./processors/email-reports');
+  const { createBrandMonitoringWorker } = await import(
+    './processors/brand-monitoring'
+  );
+  const { createEmailReportWorker } = await import(
+    './processors/email-reports'
+  );
 
-  const workers = [
-    createBrandMonitoringWorker(),
-    createEmailReportWorker(),
-  ];
+  const workers = [createBrandMonitoringWorker(), createEmailReportWorker()];
 
-  console.log('Started queue workers:', workers.map(w => w.name));
+  console.log(
+    'Started queue workers:',
+    workers.map(w => w.name)
+  );
 
   // Graceful shutdown
   process.on('SIGTERM', async () => {

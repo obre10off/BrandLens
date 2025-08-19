@@ -1,6 +1,7 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { FlatCompat } from '@eslint/eslintrc';
+import prettierPlugin from 'eslint-plugin-prettier';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -10,13 +11,41 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.extends('next/core-web-vitals', 'next/typescript', 'prettier'),
   {
-    rules: {
-      "@typescript-eslint/no-explicit-any": "off",
+    plugins: {
+      prettier: prettierPlugin,
     },
+    rules: {
+      'no-console': 'warn',
+      eqeqeq: ['error', 'always'],
+      curly: ['error', 'all'],
+      'no-duplicate-imports': 'error',
+      'no-unreachable': 'error',
+      'prefer-template': 'error',
+      'object-shorthand': 'error',
+      'prettier/prettier': 'error',
+    },
+  },
+  {
+    ignores: [
+      'node_modules/',
+      '.next/',
+      'out/',
+      'build/',
+      'dist/',
+      'drizzle/',
+      '*.generated.*',
+      '.env*',
+      '*.log',
+      'coverage/',
+      '.eslintcache',
+      '.cache',
+      '.parcel-cache',
+      'tmp/',
+      'temp/',
+    ],
   },
 ];
 
 export default eslintConfig;
-
